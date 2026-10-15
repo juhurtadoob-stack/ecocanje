@@ -2133,9 +2133,40 @@ ol {
 @media (max-width: 800px) {
   .navbar-content {
     min-height: 68px;
+    gap: 16px;
   }
 
   .navbar-links {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+
+    gap: 18px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    padding: 0 4px;
+
+    scrollbar-width: none;
+  }
+
+  .navbar-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .navbar-links a {
+    flex-shrink: 0;
+    padding: 25px 0;
+
+    font-size: 12px;
+  }
+
+  .navbar-actions {
+    flex-shrink: 0;
+  }
+
+  .navbar-login {
     display: none;
   }
 
@@ -2151,6 +2182,14 @@ ol {
 
   .navbar-register {
     padding: 10px 13px;
+  }
+
+  .navbar-links {
+    gap: 16px;
+  }
+
+  .navbar-links a {
+    font-size: 12px;
   }
 }
 /* ========================================
@@ -2737,7 +2776,7 @@ ol {
   }
 
   .user-profile-link {
-    display: none;
+   display: block;
   }
 }
 
@@ -2749,10 +2788,33 @@ ol {
 @media (max-width: 850px) {
   .user-navbar-content {
     min-height: 68px;
+    flex-wrap: wrap;
   }
 
   .user-navbar-links {
+    display: flex;
+    order: 3;
+    width: 100%;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 0 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .user-navbar-links::-webkit-scrollbar {
     display: none;
+  }
+
+  .user-navbar-links a {
+    flex-shrink: 0;
+    padding: 12px 0;
+    font-size: 13px;
+  }
+
+  .user-navbar-links a.active::after {
+    bottom: 4px;
   }
 
   .user-navbar-account {
