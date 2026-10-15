@@ -3,6 +3,9 @@ import { supabase } from '../../lib/supabase'
 
 function Beneficios() {
   const [puntosDisponibles, setPuntosDisponibles] = useState(0)
+  const [usuarioAutenticado, setUsuarioAutenticado] =
+    useState(false)
+
   const [loadingPoints, setLoadingPoints] = useState(true)
 
   const beneficios = [
@@ -50,9 +53,12 @@ function Beneficios() {
       } = await supabase.auth.getUser()
 
       if (userError || !user) {
+        setUsuarioAutenticado(false)
         setPuntosDisponibles(0)
         return
       }
+
+      setUsuarioAutenticado(true)
 
       const { data, error } = await supabase
         .from('profiles')
@@ -80,7 +86,9 @@ function Beneficios() {
         error
       )
 
+      setUsuarioAutenticado(false)
       setPuntosDisponibles(0)
+
     } finally {
       setLoadingPoints(false)
     }
@@ -117,23 +125,25 @@ function Beneficios() {
 
             </div>
 
-            <div className="benefits-points-card">
+            {usuarioAutenticado && (
+              <div className="benefits-points-card">
 
-              <span>
-                PUNTOS DISPONIBLES
-              </span>
+                <span>
+                  PUNTOS DISPONIBLES
+                </span>
 
-              <strong>
-                {loadingPoints
-                  ? '...'
-                  : puntosDisponibles}
-              </strong>
+                <strong>
+                  {loadingPoints
+                    ? '...'
+                    : puntosDisponibles}
+                </strong>
 
-              <small>
-                puntos para canjear
-              </small>
+                <small>
+                  puntos para canjear
+                </small>
 
-            </div>
+              </div>
+            )}
 
           </div>
 
@@ -173,6 +183,7 @@ function Beneficios() {
             {beneficios.map((beneficio, index) => {
 
               const disponible =
+                usuarioAutenticado &&
                 puntosDisponibles >= beneficio.puntos
 
               const faltan =
@@ -198,9 +209,11 @@ function Beneficios() {
                     </div>
 
                     <span className="benefit-status">
-                      {disponible
-                        ? 'DISPONIBLE'
-                        : 'BLOQUEADO'}
+                      {usuarioAutenticado
+                        ? disponible
+                          ? 'DISPONIBLE'
+                          : 'BLOQUEADO'
+                        : 'INICIA SESIÓN'}
                     </span>
 
                   </div>
@@ -256,7 +269,18 @@ function Beneficios() {
 
                   <div className="benefit-footer">
 
-                    {disponible ? (
+                    {!usuarioAutenticado ? (
+
+                      <div className="benefit-locked-message">
+
+                        <span>
+                          Inicia sesión para consultar
+                          tus puntos
+                        </span>
+
+                      </div>
+
+                    ) : disponible ? (
 
                       <div className="benefit-available-message">
                         Beneficio disponible para canje
