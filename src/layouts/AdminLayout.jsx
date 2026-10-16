@@ -26,13 +26,11 @@ function AdminLayout({ children }) {
             to="/admin"
             className="admin-navbar-logo"
           >
-            <span className="admin-navbar-logo-mark">
-              EC
-            </span>
-
-            <span className="admin-navbar-logo-text">
-              EcoCanje
-            </span>
+            <img
+              src="/logo-ecocanje.png"
+              alt="EcoCanje"
+              className="admin-navbar-logo-image"
+            />
           </NavLink>
 
 

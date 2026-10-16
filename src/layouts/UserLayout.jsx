@@ -61,13 +61,11 @@ function UserLayout({ children }) {
             to="/usuario"
             className="user-navbar-logo"
           >
-            <span className="user-navbar-logo-mark">
-              EC
-            </span>
-
-            <span className="user-navbar-logo-text">
-              EcoCanje
-            </span>
+            <img
+              src="/logo-ecocanje.png"
+              alt="EcoCanje"
+              className="user-navbar-logo-image"
+            />
           </NavLink>
 
           <nav className="user-navbar-links">
@@ -107,7 +105,9 @@ function UserLayout({ children }) {
               to="/usuario/notificaciones"
               className="user-notifications-link"
             >
-              <span>Notificaciones</span>
+              <span>
+                Notificaciones
+              </span>
 
               {notificacionesNoLeidas > 0 && (
                 <span className="user-notifications-badge">

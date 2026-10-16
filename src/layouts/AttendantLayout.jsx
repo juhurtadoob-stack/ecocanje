@@ -26,13 +26,11 @@ function AttendantLayout({ children }) {
             to="/encargado"
             className="attendant-navbar-logo"
           >
-            <span className="attendant-navbar-logo-mark">
-              EC
-            </span>
-
-            <span className="attendant-navbar-logo-text">
-              EcoCanje
-            </span>
+            <img
+              src="/logo-ecocanje.png"
+              alt="EcoCanje"
+              className="attendant-navbar-logo-image"
+            />
           </NavLink>
 
 
