@@ -19081,3 +19081,37 @@ ol {
   }
 
 }
+/* ========================================
+   LOGO ECOCANJE
+======================================== */
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.navbar-logo-image {
+  display: block;
+  width: 205px;
+  height: 70px;
+  object-fit: contain;
+  object-position: center;
+}
+@media (max-width: 800px) {
+
+  .navbar-logo-image {
+    width: 150px;
+    height: 58px;
+  }
+
+}
+
+@media (max-width: 450px) {
+
+  .navbar-logo-image {
+    width: 125px;
+    height: 52px;
+  }
+
+}

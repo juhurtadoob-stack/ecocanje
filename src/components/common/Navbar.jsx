@@ -10,13 +10,11 @@ function Navbar() {
           to="/"
           className="navbar-logo"
         >
-          <span className="navbar-logo-mark">
-            EC
-          </span>
-
-          <span className="navbar-logo-text">
-            EcoCanje
-          </span>
+          <img
+            src="/logo-ecocanje.png"
+            alt="EcoCanje"
+            className="navbar-logo-image"
+          />
         </NavLink>
 
 
