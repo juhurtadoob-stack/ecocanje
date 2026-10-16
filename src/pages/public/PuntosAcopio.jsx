@@ -1,24 +1,46 @@
 function PuntosAcopio() {
   const puntos = [
     {
-      nombre: 'Punto de Acopio Central',
-      direccion: 'Av. Principal 123, Nuevo Chimbote',
+      nombre: 'Punto EcoCanje Central',
+      direccion: 'Av. Pacífico 370',
+      referencia: 'Frente a la Plaza Mayor de Nuevo Chimbote',
+      distrito: 'Nuevo Chimbote',
+      provincia: 'Santa',
+      departamento: 'Áncash',
       horario: 'Lunes a sábado · 8:00 a. m. - 6:00 p. m.',
       materiales: 'PET, papel, cartón, aluminio y vidrio',
     },
     {
-      nombre: 'Punto de Acopio Norte',
-      direccion: 'Av. Pacífico 456, Nuevo Chimbote',
+      nombre: 'Punto EcoCanje Norte',
+      direccion: 'E2, Las Brisas',
+      referencia: 'Cerca de la Plaza Mayor de Las Brisas',
+      distrito: 'Nuevo Chimbote',
+      provincia: 'Santa',
+      departamento: 'Áncash',
       horario: 'Lunes a sábado · 8:00 a. m. - 5:00 p. m.',
       materiales: 'PET, papel, cartón y aluminio',
     },
     {
-      nombre: 'Punto de Acopio Sur',
-      direccion: 'Jr. Los Recicladores 789, Nuevo Chimbote',
+      nombre: 'Punto EcoCanje Sur',
+      direccion: 'Av. A, Urb. Las Casuarinas',
+      referencia: 'Cerca del Complejo Polideportivo de Casuarinas',
+      distrito: 'Nuevo Chimbote',
+      provincia: 'Santa',
+      departamento: 'Áncash',
       horario: 'Lunes a viernes · 9:00 a. m. - 5:00 p. m.',
       materiales: 'PET, vidrio, papel y cartón',
     },
   ]
+
+  const abrirGoogleMaps = (punto) => {
+    const ubicacion = `${punto.direccion}, ${punto.referencia}, ${punto.distrito}, ${punto.provincia}, ${punto.departamento}, Perú`
+
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      ubicacion
+    )}`
+
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 
   return (
     <main>
@@ -102,6 +124,17 @@ function PuntosAcopio() {
 
                   <div>
                     <strong>
+                      Referencia
+                    </strong>
+
+                    <span>
+                      {punto.referencia}
+                    </span>
+                  </div>
+
+
+                  <div>
+                    <strong>
                       Horario
                     </strong>
 
@@ -127,6 +160,7 @@ function PuntosAcopio() {
                 <button
                   type="button"
                   className="btn btn-secondary collection-button"
+                  onClick={() => abrirGoogleMaps(punto)}
                 >
                   Ver ubicación
                 </button>
