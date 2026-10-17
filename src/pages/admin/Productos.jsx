@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-
 import { supabase } from '../../lib/supabase'
 
 function Productos() {
@@ -14,6 +13,12 @@ function Productos() {
 
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [productoEditando, setProductoEditando] = useState(null)
+
+  // Modal de cambio de estado
+  const [productoEstadoSeleccionado, setProductoEstadoSeleccionado] =
+    useState(null)
+  const [mostrarModalEstado, setMostrarModalEstado] = useState(false)
+  const [cambiandoEstado, setCambiandoEstado] = useState(false)
 
   const [formulario, setFormulario] = useState({
     nombre: '',
@@ -30,7 +35,7 @@ function Productos() {
   }, [])
 
   useEffect(() => {
-    if (mostrarFormulario) {
+    if (mostrarFormulario || mostrarModalEstado) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -39,7 +44,7 @@ function Productos() {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [mostrarFormulario])
+  }, [mostrarFormulario, mostrarModalEstado])
 
   const cargarDatos = async () => {
     setLoading(true)
@@ -241,27 +246,39 @@ function Productos() {
     setSaving(false)
   }
 
-  const cambiarEstado = async (producto) => {
-    const accion =
-      producto.estado === 'activo'
-        ? 'desactivar'
-        : 'activar'
+  // =====================================================
+  // CAMBIO DE ESTADO
+  // =====================================================
 
-    const confirmar = window.confirm(
-      `¿Deseas ${accion} el producto "${producto.nombre}"?`
-    )
+  const abrirCambioEstado = (producto) => {
+    setProductoEstadoSeleccionado(producto)
+    setMostrarModalEstado(true)
+    setError('')
+    setMensaje('')
+  }
 
-    if (!confirmar) {
+  const cerrarCambioEstado = () => {
+    if (cambiandoEstado) {
       return
     }
 
+    setProductoEstadoSeleccionado(null)
+    setMostrarModalEstado(false)
+  }
+
+  const cambiarEstado = async () => {
+    if (!productoEstadoSeleccionado) {
+      return
+    }
+
+    setCambiandoEstado(true)
     setError('')
     setMensaje('')
 
     const { error: statusError } = await supabase.rpc(
       'toggle_admin_product_status',
       {
-        p_id: producto.id,
+        p_id: productoEstadoSeleccionado.id,
       }
     )
 
@@ -273,16 +290,21 @@ function Productos() {
           'No se pudo cambiar el estado del producto.'
       )
 
+      setCambiandoEstado(false)
       return
     }
 
     setMensaje(
-      producto.estado === 'activo'
+      productoEstadoSeleccionado.estado === 'activo'
         ? 'Producto desactivado correctamente.'
         : 'Producto activado correctamente.'
     )
 
+    cerrarCambioEstado()
+
     await cargarDatos()
+
+    setCambiandoEstado(false)
   }
 
   const mostrarEstado = (estado) => {
@@ -297,10 +319,12 @@ function Productos() {
   return (
     <main className="admin-products-page">
 
+      {/* =====================================================
+          HERO
+      ===================================================== */}
+
       <section className="admin-products-hero">
-
         <div>
-
           <p className="section-kicker">
             GESTIÓN DE CATÁLOGO
           </p>
@@ -313,17 +337,19 @@ function Productos() {
             Administra los productos disponibles en la
             EcoTienda de EcoCanje.
           </p>
-
         </div>
-
       </section>
+
+
+      {/* =====================================================
+          CONTENIDO
+      ===================================================== */}
 
       <section className="admin-products-section">
 
         <div className="admin-products-header">
 
           <div>
-
             <p className="section-kicker">
               CATÁLOGO
             </p>
@@ -336,13 +362,12 @@ function Productos() {
               Crea, modifica y administra los productos
               disponibles para los usuarios.
             </p>
-
           </div>
+
 
           <div className="admin-products-actions">
 
             <div className="admin-products-count">
-
               <span>
                 Total
               </span>
@@ -350,7 +375,6 @@ function Productos() {
               <strong>
                 {productos.length}
               </strong>
-
             </div>
 
             <button
@@ -365,11 +389,17 @@ function Productos() {
 
         </div>
 
+
+        {/* MENSAJE DE ÉXITO */}
+
         {mensaje && (
           <div className="admin-products-success">
             {mensaje}
           </div>
         )}
+
+
+        {/* ERROR */}
 
         {error && !mostrarFormulario && (
           <div className="admin-products-message admin-products-message-error">
@@ -385,6 +415,9 @@ function Productos() {
           </div>
         )}
 
+
+        {/* CARGANDO */}
+
         {loading && (
           <div className="admin-products-message">
 
@@ -398,6 +431,9 @@ function Productos() {
 
           </div>
         )}
+
+
+        {/* SIN PRODUCTOS */}
 
         {!loading && !error && productos.length === 0 && (
           <div className="admin-products-message">
@@ -413,30 +449,57 @@ function Productos() {
           </div>
         )}
 
+
+        {/* =====================================================
+            TABLA
+        ===================================================== */}
+
         {!loading && !error && productos.length > 0 && (
+
           <div className="admin-products-table-container">
 
             <table className="admin-products-table">
 
               <thead>
-
                 <tr>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th>Stock</th>
-                  <th>Estado</th>
-                  <th>Registro</th>
-                  <th>Acciones</th>
-                </tr>
+                  <th>
+                    Producto
+                  </th>
 
+                  <th>
+                    Categoría
+                  </th>
+
+                  <th>
+                    Precio
+                  </th>
+
+                  <th>
+                    Stock
+                  </th>
+
+                  <th>
+                    Estado
+                  </th>
+
+                  <th>
+                    Registro
+                  </th>
+
+                  <th>
+                    Acciones
+                  </th>
+                </tr>
               </thead>
+
 
               <tbody>
 
                 {productos.map((producto) => (
 
                   <tr key={producto.id}>
+
+                    {/* PRODUCTO */}
 
                     <td>
 
@@ -461,6 +524,7 @@ function Productos() {
 
                         </div>
 
+
                         <div>
 
                           <strong>
@@ -478,10 +542,16 @@ function Productos() {
 
                     </td>
 
+
+                    {/* CATEGORÍA */}
+
                     <td>
                       {producto.categoria_nombre ||
                         'Sin categoría'}
                     </td>
+
+
+                    {/* PRECIO */}
 
                     <td>
 
@@ -490,6 +560,9 @@ function Productos() {
                       </strong>
 
                     </td>
+
+
+                    {/* STOCK */}
 
                     <td>
 
@@ -505,6 +578,9 @@ function Productos() {
 
                     </td>
 
+
+                    {/* ESTADO */}
+
                     <td>
 
                       <span
@@ -514,6 +590,9 @@ function Productos() {
                       </span>
 
                     </td>
+
+
+                    {/* FECHA */}
 
                     <td>
 
@@ -526,6 +605,9 @@ function Productos() {
                       })}
 
                     </td>
+
+
+                    {/* ACCIONES */}
 
                     <td>
 
@@ -541,6 +623,7 @@ function Productos() {
                           Editar
                         </button>
 
+
                         <button
                           type="button"
                           className={
@@ -549,7 +632,7 @@ function Productos() {
                               : 'admin-table-button admin-table-button-success'
                           }
                           onClick={() =>
-                            cambiarEstado(producto)
+                            abrirCambioEstado(producto)
                           }
                         >
                           {producto.estado === 'activo'
@@ -570,18 +653,26 @@ function Productos() {
             </table>
 
           </div>
+
         )}
 
       </section>
+
+
+      {/* =====================================================
+          MODAL CREAR / EDITAR PRODUCTO
+      ===================================================== */}
 
       {mostrarFormulario && (
 
         <div
           className="admin-product-modal-overlay"
           onMouseDown={(e) => {
+
             if (e.target === e.currentTarget) {
               cerrarFormulario()
             }
+
           }}
         >
 
@@ -597,15 +688,19 @@ function Productos() {
               <div>
 
                 <p className="section-kicker">
+
                   {productoEditando
                     ? 'EDITAR PRODUCTO'
                     : 'NUEVO PRODUCTO'}
+
                 </p>
 
                 <h2 id="admin-product-modal-title">
+
                   {productoEditando
                     ? 'Modificar producto'
                     : 'Registrar producto'}
+
                 </h2>
 
                 <p>
@@ -613,6 +708,7 @@ function Productos() {
                 </p>
 
               </div>
+
 
               <button
                 type="button"
@@ -626,6 +722,7 @@ function Productos() {
 
             </div>
 
+
             <form
               className="admin-product-form"
               onSubmit={guardarProducto}
@@ -636,6 +733,7 @@ function Productos() {
                   {error}
                 </div>
               )}
+
 
               <div className="admin-product-form-grid">
 
@@ -656,6 +754,7 @@ function Productos() {
                   />
 
                 </div>
+
 
                 <div className="admin-form-field">
 
@@ -689,6 +788,7 @@ function Productos() {
 
                 </div>
 
+
                 <div className="admin-form-field">
 
                   <label htmlFor="precio">
@@ -709,6 +809,7 @@ function Productos() {
 
                 </div>
 
+
                 <div className="admin-form-field">
 
                   <label htmlFor="stock">
@@ -728,6 +829,7 @@ function Productos() {
                   />
 
                 </div>
+
 
                 <div className="admin-form-field">
 
@@ -754,6 +856,7 @@ function Productos() {
 
                 </div>
 
+
                 <div className="admin-form-field">
 
                   <label htmlFor="imagen_url">
@@ -770,6 +873,7 @@ function Productos() {
                   />
 
                 </div>
+
 
                 <div className="admin-form-field admin-form-field-full">
 
@@ -790,6 +894,7 @@ function Productos() {
 
               </div>
 
+
               <div className="admin-product-form-actions">
 
                 <button
@@ -801,21 +906,229 @@ function Productos() {
                   Cancelar
                 </button>
 
+
                 <button
                   type="submit"
                   className="admin-primary-button"
                   disabled={saving}
                 >
+
                   {saving
                     ? 'Guardando...'
                     : productoEditando
                       ? 'Guardar cambios'
                       : 'Crear producto'}
+
                 </button>
 
               </div>
 
             </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* =====================================================
+          MODAL ACTIVAR / DESACTIVAR PRODUCTO
+      ===================================================== */}
+
+      {mostrarModalEstado && productoEstadoSeleccionado && (
+
+        <div
+          className="admin-status-modal-overlay"
+          onMouseDown={(e) => {
+
+            if (
+              e.target === e.currentTarget &&
+              !cambiandoEstado
+            ) {
+              cerrarCambioEstado()
+            }
+
+          }}
+        >
+
+          <div
+            className="admin-status-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-status-modal-title"
+          >
+
+            {/* CABECERA */}
+
+            <div className="admin-status-modal-header">
+
+              <div>
+
+                <p className="admin-status-modal-kicker">
+                  GESTIÓN DE PRODUCTO
+                </p>
+
+                <h2 id="admin-status-modal-title">
+
+                  {productoEstadoSeleccionado.estado === 'activo'
+                    ? 'Desactivar producto'
+                    : 'Activar producto'}
+
+                </h2>
+
+                <p>
+
+                  {productoEstadoSeleccionado.estado === 'activo'
+                    ? 'El producto dejará de estar disponible en la EcoTienda.'
+                    : 'El producto volverá a estar disponible en la EcoTienda.'}
+
+                </p>
+
+              </div>
+
+
+              <button
+                type="button"
+                className="admin-status-modal-close"
+                onClick={cerrarCambioEstado}
+                disabled={cambiandoEstado}
+                aria-label="Cerrar ventana"
+              >
+                ×
+              </button>
+
+            </div>
+
+
+            {/* PRODUCTO SELECCIONADO */}
+
+            <div className="admin-status-product">
+
+              <div className="admin-status-product-image">
+
+                {productoEstadoSeleccionado.imagen_url ? (
+
+                  <img
+                    src={productoEstadoSeleccionado.imagen_url}
+                    alt={productoEstadoSeleccionado.nombre}
+                  />
+
+                ) : (
+
+                  <span>
+                    PRODUCTO
+                  </span>
+
+                )}
+
+              </div>
+
+
+              <div className="admin-status-product-info">
+
+                <span className="admin-status-product-label">
+                  PRODUCTO SELECCIONADO
+                </span>
+
+                <strong>
+                  {productoEstadoSeleccionado.nombre}
+                </strong>
+
+                <p>
+                  {productoEstadoSeleccionado.descripcion ||
+                    'Sin descripción disponible.'}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            {/* ESTADO ACTUAL */}
+
+            <div className="admin-status-current">
+
+              <span>
+                Estado actual
+              </span>
+
+              <strong
+                className={
+                  productoEstadoSeleccionado.estado === 'activo'
+                    ? 'is-active'
+                    : 'is-inactive'
+                }
+              >
+
+                <span className="admin-status-dot" />
+
+                {mostrarEstado(
+                  productoEstadoSeleccionado.estado
+                )}
+
+              </strong>
+
+            </div>
+
+
+            {/* MENSAJE */}
+
+            <div className="admin-status-modal-message">
+
+              <strong>
+
+                {productoEstadoSeleccionado.estado === 'activo'
+                  ? '¿Deseas desactivar este producto?'
+                  : '¿Deseas activar este producto?'}
+
+              </strong>
+
+              <p>
+
+                {productoEstadoSeleccionado.estado === 'activo'
+                  ? 'Los usuarios ya no podrán encontrar ni canjear este producto mientras permanezca inactivo.'
+                  : 'Los usuarios podrán volver a encontrar y canjear este producto en la EcoTienda.'}
+
+              </p>
+
+            </div>
+
+
+            {/* BOTONES */}
+
+            <div className="admin-status-modal-actions">
+
+              <button
+                type="button"
+                className="admin-status-cancel-button"
+                onClick={cerrarCambioEstado}
+                disabled={cambiandoEstado}
+              >
+                Cancelar
+              </button>
+
+
+              <button
+                type="button"
+                className={
+                  productoEstadoSeleccionado.estado === 'activo'
+                    ? 'admin-status-confirm-button admin-status-confirm-danger'
+                    : 'admin-status-confirm-button admin-status-confirm-success'
+                }
+                onClick={cambiarEstado}
+                disabled={cambiandoEstado}
+              >
+
+                {cambiandoEstado
+                  ? 'Procesando...'
+                  : productoEstadoSeleccionado.estado === 'activo'
+                    ? 'Sí, desactivar'
+                    : 'Sí, activar'}
+
+              </button>
+
+            </div>
 
           </div>
 

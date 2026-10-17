@@ -1,5 +1,75 @@
+
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+
+function AdminIcon({ name }) {
+  return (
+    <svg
+      className="admin-stat-svg"
+      viewBox="0 0 24 24"
+      width="25"
+      height="25"
+      fill="none"
+      stroke="#168044"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={{
+        display: 'block',
+        flex: '0 0 25px',
+        width: '25px',
+        height: '25px',
+        minWidth: '25px',
+        margin: 0,
+        transform: 'none',
+      }}
+    >
+      {name === 'usuarios' && (
+        <>
+          <circle cx="9" cy="8" r="3.5" />
+          <path d="M2.5 20v-2a6.5 6.5 0 0 1 13 0v2" />
+          <path d="M16 5.5a3.5 3.5 0 0 1 0 6.5" />
+          <path d="M18 14a5 5 0 0 1 3.5 4.8V20" />
+        </>
+      )}
+
+      {name === 'pedidos' && (
+        <>
+          <rect x="5" y="4" width="14" height="17" rx="2" />
+          <path d="M9 4V3h6v1" />
+          <path d="M8.5 10h7" />
+          <path d="M8.5 14h7" />
+          <path d="M8.5 18h4" />
+        </>
+      )}
+
+      {name === 'reciclajes' && (
+        <>
+          {/* Flecha superior */}
+          <path d="M9 5 10.7 2.5h3.2L16 6" />
+          <path d="M12.8 6H16V2.8" />
+
+          {/* Flecha derecha e inferior */}
+          <path d="m18 9.5 2.2 3.7-1.8 3.2h-4.1" />
+          <path d="M14.3 13.5v2.9h3" />
+
+          {/* Flecha izquierda e inferior */}
+          <path d="M8.5 19H4.8l-1.7-3 2.1-3.7" />
+          <path d="m8.3 15.7-3.1-1.1-.9 3" />
+        </>
+      )}
+
+      {name === 'productos' && (
+        <>
+          <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z" />
+          <path d="m4.5 7.8 7.5 4.3 7.5-4.3" />
+          <path d="M12 12.1V21" />
+        </>
+      )}
+    </svg>
+  )
+}
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -45,15 +115,48 @@ function Dashboard() {
     setLoading(false)
   }
 
+  const indicadores = [
+    {
+      nombre: 'Usuarios',
+      valor: stats.usuarios,
+      descripcion: 'Usuarios registrados',
+      icono: 'usuarios',
+    },
+    {
+      nombre: 'Pedidos',
+      valor: stats.pedidos,
+      descripcion: 'Pedidos registrados',
+      icono: 'pedidos',
+    },
+    {
+      nombre: 'Reciclajes',
+      valor: stats.reciclajes,
+      descripcion: 'Reciclajes registrados',
+      icono: 'reciclajes',
+    },
+    {
+      nombre: 'Productos',
+      valor: stats.productos,
+      descripcion: 'Productos disponibles',
+      icono: 'productos',
+    },
+  ]
+
   return (
     <main className="admin-dashboard">
 
+      {/* ENCABEZADO */}
       <section className="admin-dashboard-hero">
-        <div>
+        <div className="admin-dashboard-hero-content">
 
-          <p className="section-kicker">
-            PANEL DE ADMINISTRACIÓN
-          </p>
+          <span className="admin-dashboard-kicker">
+            <span className="admin-dashboard-kicker-line" />
+            ESPACIO DE GESTIÓN
+          </span>
+
+          <h1>
+            Panel de <span>administración</span>
+          </h1>
 
           <p>
             Administra y supervisa los principales módulos de EcoCanje
@@ -63,33 +166,32 @@ function Dashboard() {
         </div>
       </section>
 
-
+      {/* RESUMEN */}
       <section className="admin-dashboard-section">
 
         <div className="admin-dashboard-header">
-
           <div>
 
-            <p className="section-kicker">
-              RESUMEN
-            </p>
+            <span className="admin-dashboard-section-label">
+              VISTA GENERAL
+            </span>
+
+            <h2>Resumen de la plataforma</h2>
 
             <p>
-              Aquí puedes consultar los principales indicadores
-              de la plataforma.
+              Consulta los principales indicadores de EcoCanje.
             </p>
 
           </div>
-
         </div>
 
-
+        {/* CARGANDO */}
         {loading && (
-          <div className="orders-empty">
+          <div className="admin-dashboard-state">
 
-            <h3>
-              Cargando estadísticas...
-            </h3>
+            <span className="admin-dashboard-loader" />
+
+            <h3>Cargando estadísticas...</h3>
 
             <p>
               Estamos consultando la información del panel administrativo.
@@ -98,91 +200,66 @@ function Dashboard() {
           </div>
         )}
 
-
+        {/* ERROR */}
         {!loading && error && (
-          <div className="orders-error">
+          <div className="admin-dashboard-state admin-dashboard-state-error">
 
-            <h3>
-              No se pudieron cargar las estadísticas
-            </h3>
+            <h3>No se pudieron cargar las estadísticas</h3>
 
-            <p>
-              {error}
-            </p>
+            <p>{error}</p>
 
           </div>
         )}
 
-
+        {/* TARJETAS DE ESTADÍSTICAS */}
         {!loading && !error && (
           <div className="admin-stats-grid">
 
-            <article className="admin-stat-card">
+            {indicadores.map((indicador) => (
+              <article
+                className="admin-stat-card"
+                key={indicador.icono}
+              >
 
-              <span>
-                Usuarios
-              </span>
+                <div className="admin-stat-top">
 
-              <strong>
-                {stats.usuarios}
-              </strong>
+                  <span
+                    className="admin-stat-icon"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxSizing: 'border-box',
+                      padding: 0,
+                      lineHeight: 0,
+                      color: '#168044',
+                    }}
+                  >
+                    <AdminIcon name={indicador.icono} />
+                  </span>
 
-              <p>
-                Usuarios registrados
-              </p>
+                  <span className="admin-stat-status">
+                    TOTAL
+                  </span>
 
-            </article>
+                </div>
 
+                <span className="admin-stat-label">
+                  {indicador.nombre}
+                </span>
 
-            <article className="admin-stat-card">
+                <strong className="admin-stat-value">
+                  {indicador.valor}
+                </strong>
 
-              <span>
-                Pedidos
-              </span>
+                <p className="admin-stat-description">
+                  {indicador.descripcion}
+                </p>
 
-              <strong>
-                {stats.pedidos}
-              </strong>
+                <div className="admin-stat-bottom-line" />
 
-              <p>
-                Pedidos registrados
-              </p>
-
-            </article>
-
-
-            <article className="admin-stat-card">
-
-              <span>
-                Reciclajes
-              </span>
-
-              <strong>
-                {stats.reciclajes}
-              </strong>
-
-              <p>
-                Reciclajes registrados
-              </p>
-
-            </article>
-
-
-            <article className="admin-stat-card">
-
-              <span>
-                Productos
-              </span>
-
-              <strong>
-                {stats.productos}
-              </strong>
-
-              <p>
-                Productos disponibles
-              </p>
-
-            </article>
+              </article>
+            ))}
 
           </div>
         )}

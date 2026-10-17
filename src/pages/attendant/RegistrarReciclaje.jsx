@@ -265,15 +265,11 @@ function RegistrarReciclaje() {
   if (loading) {
     return (
       <main className="attendant-recycling-page">
-
         <div className="container">
-
           <div className="auth-loading">
             Cargando información del reciclaje...
           </div>
-
         </div>
-
       </main>
     )
   }
@@ -285,15 +281,11 @@ function RegistrarReciclaje() {
   if (error && !user) {
     return (
       <main className="attendant-recycling-page">
-
         <div className="container">
-
           <div className="attendant-scan-error">
             {error}
           </div>
-
         </div>
-
       </main>
     )
   }
@@ -306,9 +298,7 @@ function RegistrarReciclaje() {
       ================================================== */}
 
       <section className="attendant-recycling-hero">
-
         <div className="container">
-
           <span className="section-label">
             REGISTRO DE RECICLAJE
           </span>
@@ -322,9 +312,7 @@ function RegistrarReciclaje() {
             Selecciona el punto de acopio, registra el material
             entregado y revisa los puntos que serán asignados.
           </p>
-
         </div>
-
       </section>
 
       {/* ==================================================
@@ -332,9 +320,7 @@ function RegistrarReciclaje() {
       ================================================== */}
 
       <section className="attendant-recycling-section">
-
         <div className="container">
-
           <div className="attendant-recycling-grid">
 
             {/* ==================================================
@@ -344,7 +330,6 @@ function RegistrarReciclaje() {
             <div className="attendant-recycling-form-card">
 
               <div className="attendant-form-heading">
-
                 <span>
                   DATOS DEL RECICLAJE
                 </span>
@@ -357,7 +342,6 @@ function RegistrarReciclaje() {
                   Completa los datos correspondientes al
                   material recibido.
                 </p>
-
               </div>
 
               {/* ==================================================
@@ -365,16 +349,12 @@ function RegistrarReciclaje() {
               ================================================== */}
 
               <div className="attendant-selected-user">
-
                 <div className="attendant-selected-user-avatar">
-
                   {user.nombres?.charAt(0)}
                   {user.apellidos?.charAt(0)}
-
                 </div>
 
                 <div>
-
                   <span>
                     USUARIO
                   </span>
@@ -386,9 +366,7 @@ function RegistrarReciclaje() {
                   <small>
                     {user.codigo_usuario}
                   </small>
-
                 </div>
-
               </div>
 
               {/* ==================================================
@@ -396,7 +374,6 @@ function RegistrarReciclaje() {
               ================================================== */}
 
               <div className="attendant-form-group">
-
                 <label htmlFor="collection-point">
                   Punto de acopio
                 </label>
@@ -405,34 +382,27 @@ function RegistrarReciclaje() {
                   id="collection-point"
                   value={pointId}
                   onChange={(event) => {
-
-                    setPointId(
-                      event.target.value
-                    )
-
+                    setPointId(event.target.value)
                     setShowReview(false)
                     setError('')
-
                   }}
                 >
-
                   <option value="">
                     Selecciona un punto de acopio
                   </option>
 
                   {collectionPoints.map((point) => (
-
                     <option
                       key={point.id}
                       value={point.id}
                     >
                       {point.nombre}
+                      {point.direccion
+                        ? ` — ${point.direccion}`
+                        : ''}
                     </option>
-
                   ))}
-
                 </select>
-
               </div>
 
               {/* ==================================================
@@ -440,7 +410,6 @@ function RegistrarReciclaje() {
               ================================================== */}
 
               <div className="attendant-form-group">
-
                 <label htmlFor="material">
                   Material
                 </label>
@@ -449,35 +418,25 @@ function RegistrarReciclaje() {
                   id="material"
                   value={materialId}
                   onChange={(event) => {
-
-                    setMaterialId(
-                      event.target.value
-                    )
-
+                    setMaterialId(event.target.value)
                     setCantidad('')
                     setShowReview(false)
                     setError('')
-
                   }}
                 >
-
                   <option value="">
                     Selecciona un material
                   </option>
 
                   {materials.map((material) => (
-
                     <option
                       key={material.id}
                       value={material.id}
                     >
                       {material.nombre}
                     </option>
-
                   ))}
-
                 </select>
-
               </div>
 
               {/* ==================================================
@@ -485,9 +444,7 @@ function RegistrarReciclaje() {
               ================================================== */}
 
               {selectedMaterial && (
-
                 <div className="attendant-material-info">
-
                   <strong>
                     {selectedMaterial.nombre}
                   </strong>
@@ -497,9 +454,7 @@ function RegistrarReciclaje() {
                     {selectedMaterial.unidad} ={' '}
                     {selectedMaterial.puntos_base} puntos
                   </span>
-
                 </div>
-
               )}
 
               {/* ==================================================
@@ -507,13 +462,11 @@ function RegistrarReciclaje() {
               ================================================== */}
 
               <div className="attendant-form-group">
-
                 <label htmlFor="cantidad">
                   Cantidad entregada
                 </label>
 
                 <div className="attendant-quantity-input">
-
                   <input
                     id="cantidad"
                     type="number"
@@ -521,14 +474,9 @@ function RegistrarReciclaje() {
                     step="0.01"
                     value={cantidad}
                     onChange={(event) => {
-
-                      setCantidad(
-                        event.target.value
-                      )
-
+                      setCantidad(event.target.value)
                       setShowReview(false)
                       setError('')
-
                     }}
                     placeholder="Ej. 2"
                   />
@@ -536,9 +484,7 @@ function RegistrarReciclaje() {
                   <span>
                     {selectedMaterial?.unidad || 'unidad'}
                   </span>
-
                 </div>
-
               </div>
 
               {/* ==================================================
@@ -546,7 +492,6 @@ function RegistrarReciclaje() {
               ================================================== */}
 
               <div className="attendant-form-group">
-
                 <label htmlFor="observaciones">
                   Observaciones
                 </label>
@@ -556,17 +501,11 @@ function RegistrarReciclaje() {
                   rows="4"
                   value={observaciones}
                   onChange={(event) => {
-
-                    setObservaciones(
-                      event.target.value
-                    )
-
+                    setObservaciones(event.target.value)
                     setShowReview(false)
-
                   }}
                   placeholder="Observaciones opcionales..."
                 />
-
               </div>
 
               {/* ==================================================
@@ -574,11 +513,9 @@ function RegistrarReciclaje() {
               ================================================== */}
 
               {error && (
-
                 <div className="attendant-scan-error">
                   {error}
                 </div>
-
               )}
 
               {/* ==================================================
@@ -605,7 +542,6 @@ function RegistrarReciclaje() {
             ================================================== */}
 
             <aside className="attendant-recycling-summary">
-
               <span className="section-label">
                 RESUMEN
               </span>
@@ -620,7 +556,6 @@ function RegistrarReciclaje() {
               </p>
 
               <div className="attendant-points-result">
-
                 <span>
                   PUNTOS CALCULADOS
                 </span>
@@ -632,13 +567,10 @@ function RegistrarReciclaje() {
                 <small>
                   puntos
                 </small>
-
               </div>
 
               <div className="attendant-summary-data">
-
                 <div>
-
                   <span>
                     Usuario
                   </span>
@@ -646,11 +578,9 @@ function RegistrarReciclaje() {
                   <strong>
                     {user.nombres} {user.apellidos}
                   </strong>
-
                 </div>
 
                 <div>
-
                   <span>
                     Material
                   </span>
@@ -658,11 +588,9 @@ function RegistrarReciclaje() {
                   <strong>
                     {selectedMaterial?.nombre || '—'}
                   </strong>
-
                 </div>
 
                 <div>
-
                   <span>
                     Cantidad
                   </span>
@@ -674,17 +602,12 @@ function RegistrarReciclaje() {
                         }`
                       : '—'}
                   </strong>
-
                 </div>
-
               </div>
-
             </aside>
 
           </div>
-
         </div>
-
       </section>
 
       {/* ==================================================
@@ -692,13 +615,10 @@ function RegistrarReciclaje() {
       ================================================== */}
 
       {showReview && (
-
         <div className="attendant-modal-overlay">
-
           <div className="attendant-modal">
 
             <div className="attendant-modal-header">
-
               <span>
                 CONFIRMACIÓN
               </span>
@@ -710,13 +630,10 @@ function RegistrarReciclaje() {
               <p>
                 Verifica los datos antes de asignar los puntos.
               </p>
-
             </div>
 
             <div className="attendant-modal-data">
-
               <div>
-
                 <span>
                   USUARIO
                 </span>
@@ -724,11 +641,9 @@ function RegistrarReciclaje() {
                 <strong>
                   {user.nombres} {user.apellidos}
                 </strong>
-
               </div>
 
               <div>
-
                 <span>
                   PUNTO DE ACOPIO
                 </span>
@@ -736,11 +651,9 @@ function RegistrarReciclaje() {
                 <strong>
                   {selectedPoint?.nombre}
                 </strong>
-
               </div>
 
               <div>
-
                 <span>
                   MATERIAL
                 </span>
@@ -748,11 +661,9 @@ function RegistrarReciclaje() {
                 <strong>
                   {selectedMaterial?.nombre}
                 </strong>
-
               </div>
 
               <div>
-
                 <span>
                   CANTIDAD
                 </span>
@@ -761,13 +672,10 @@ function RegistrarReciclaje() {
                   {cantidadNumerica}{' '}
                   {selectedMaterial?.unidad}
                 </strong>
-
               </div>
-
             </div>
 
             <div className="attendant-modal-points">
-
               <span>
                 PUNTOS A ASIGNAR
               </span>
@@ -779,13 +687,10 @@ function RegistrarReciclaje() {
               <small>
                 puntos
               </small>
-
             </div>
 
             {observaciones.trim() && (
-
               <div className="attendant-modal-observations">
-
                 <span>
                   OBSERVACIONES
                 </span>
@@ -793,21 +698,16 @@ function RegistrarReciclaje() {
                 <p>
                   {observaciones.trim()}
                 </p>
-
               </div>
-
             )}
 
             {error && (
-
               <div className="attendant-scan-error">
                 {error}
               </div>
-
             )}
 
             <div className="attendant-modal-actions">
-
               <button
                 type="button"
                 className="attendant-secondary-button"
@@ -827,22 +727,17 @@ function RegistrarReciclaje() {
                   ? 'Registrando...'
                   : 'Confirmar y registrar'}
               </button>
-
             </div>
 
             {!saving && (
-
               <p className="attendant-modal-note">
                 Al confirmar, los puntos serán asignados
                 automáticamente al usuario.
               </p>
-
             )}
 
           </div>
-
         </div>
-
       )}
 
       {/* ==================================================
@@ -850,13 +745,10 @@ function RegistrarReciclaje() {
       ================================================== */}
 
       {success && (
-
         <div className="attendant-modal-overlay">
-
           <div className="attendant-modal">
 
             <div className="attendant-modal-header">
-
               <span>
                 REGISTRO COMPLETADO
               </span>
@@ -868,11 +760,9 @@ function RegistrarReciclaje() {
               <p>
                 La operación se guardó correctamente en EcoCanje.
               </p>
-
             </div>
 
             <div className="attendant-modal-points">
-
               <span>
                 PUNTOS ASIGNADOS
               </span>
@@ -884,13 +774,10 @@ function RegistrarReciclaje() {
               <small>
                 puntos
               </small>
-
             </div>
 
             <div className="attendant-modal-data">
-
               <div>
-
                 <span>
                   USUARIO
                 </span>
@@ -898,11 +785,9 @@ function RegistrarReciclaje() {
                 <strong>
                   {user.nombres} {user.apellidos}
                 </strong>
-
               </div>
 
               <div>
-
                 <span>
                   MATERIAL
                 </span>
@@ -910,11 +795,9 @@ function RegistrarReciclaje() {
                 <strong>
                   {selectedMaterial?.nombre}
                 </strong>
-
               </div>
 
               <div>
-
                 <span>
                   CANTIDAD
                 </span>
@@ -923,11 +806,9 @@ function RegistrarReciclaje() {
                   {cantidadNumerica}{' '}
                   {selectedMaterial?.unidad}
                 </strong>
-
               </div>
 
               <div>
-
                 <span>
                   NIVEL ACTUAL
                 </span>
@@ -935,13 +816,10 @@ function RegistrarReciclaje() {
                 <strong>
                   Actualizado
                 </strong>
-
               </div>
-
             </div>
 
             <div className="attendant-modal-actions">
-
               <button
                 type="button"
                 className="attendant-primary-button"
@@ -949,13 +827,10 @@ function RegistrarReciclaje() {
               >
                 Escanear otro usuario
               </button>
-
             </div>
 
           </div>
-
         </div>
-
       )}
 
     </main>

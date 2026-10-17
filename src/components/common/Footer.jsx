@@ -10,14 +10,16 @@ function Footer() {
 
         <div className="footer-brand">
 
-          <NavLink to="/" className="footer-logo">
-            <span className="footer-logo-mark">
-              EC
-            </span>
-
-            <span>
-              EcoCanje
-            </span>
+          <NavLink
+            to="/"
+            className="footer-logo"
+            aria-label="EcoCanje - Inicio"
+          >
+            <img
+              src="/logo-ecocanje.png"
+              alt="EcoCanje"
+              className="footer-logo-image"
+            />
           </NavLink>
 
           <p>
@@ -109,10 +111,11 @@ function Footer() {
       <div className="container footer-bottom">
 
         <span>
-          © 2026 EcoCanje. Todos los derechos reservados.
+          © {new Date().getFullYear()} EcoCanje.
+          Todos los derechos reservados.
         </span>
 
-        <span>
+        <span className="footer-slogan">
           Recicla. Acumula. Canjea.
         </span>
 
