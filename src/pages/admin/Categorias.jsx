@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 function Categorias() {
@@ -7,12 +6,19 @@ function Categorias() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [cambiandoEstado, setCambiandoEstado] = useState(false)
 
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
 
+  const [busqueda, setBusqueda] = useState('')
+
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [categoriaEditando, setCategoriaEditando] = useState(null)
+
+  const [mostrarModalEstado, setMostrarModalEstado] = useState(false)
+  const [categoriaEstadoSeleccionada, setCategoriaEstadoSeleccionada] =
+    useState(null)
 
   const [formulario, setFormulario] = useState({
     nombre: '',
@@ -25,7 +31,7 @@ function Categorias() {
   }, [])
 
   useEffect(() => {
-    if (mostrarFormulario) {
+    if (mostrarFormulario || mostrarModalEstado) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -34,7 +40,7 @@ function Categorias() {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [mostrarFormulario])
+  }, [mostrarFormulario, mostrarModalEstado])
 
   const cargarCategorias = async () => {
     setLoading(true)
@@ -58,6 +64,28 @@ function Categorias() {
     setCategorias(data || [])
     setLoading(false)
   }
+
+  const categoriasFiltradas = useMemo(() => {
+    const texto = busqueda.trim().toLowerCase()
+
+    if (!texto) {
+      return categorias
+    }
+
+    return categorias.filter((categoria) => {
+      const contenido = [
+        categoria.nombre,
+        categoria.descripcion,
+        categoria.estado,
+        categoria.estado === 'activo' ? 'activo' : 'inactivo',
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return contenido.includes(texto)
+    })
+  }, [categorias, busqueda])
 
   const limpiarFormulario = () => {
     setFormulario({
@@ -181,22 +209,32 @@ function Categorias() {
     setSaving(false)
   }
 
-  const cambiarEstado = async (categoria) => {
-    const accion =
-      categoria.estado === 'activo'
-        ? 'desactivar'
-        : 'activar'
+  const abrirCambioEstado = (categoria) => {
+    setCategoriaEstadoSeleccionada(categoria)
+    setMensaje('')
+    setError('')
+    setMostrarModalEstado(true)
+  }
 
-    const confirmar = window.confirm(
-      `¿Deseas ${accion} la categoría "${categoria.nombre}"?`
-    )
-
-    if (!confirmar) {
+  const cerrarCambioEstado = () => {
+    if (cambiandoEstado) {
       return
     }
 
+    setMostrarModalEstado(false)
+    setCategoriaEstadoSeleccionada(null)
+  }
+
+  const cambiarEstado = async () => {
+    if (!categoriaEstadoSeleccionada) {
+      return
+    }
+
+    setCambiandoEstado(true)
     setError('')
     setMensaje('')
+
+    const categoria = categoriaEstadoSeleccionada
 
     const { error: statusError } = await supabase.rpc(
       'toggle_admin_category_status',
@@ -213,6 +251,7 @@ function Categorias() {
           'No se pudo cambiar el estado de la categoría.'
       )
 
+      setCambiandoEstado(false)
       return
     }
 
@@ -222,7 +261,12 @@ function Categorias() {
         : 'Categoría activada correctamente.'
     )
 
+    setMostrarModalEstado(false)
+    setCategoriaEstadoSeleccionada(null)
+
     await cargarCategorias()
+
+    setCambiandoEstado(false)
   }
 
   const mostrarEstado = (estado) => {
@@ -236,11 +280,8 @@ function Categorias() {
 
   return (
     <main className="admin-categories-page">
-
       <section className="admin-categories-hero">
-
         <div>
-
           <p className="section-kicker">
             GESTIÓN DE CATÁLOGO
           </p>
@@ -253,17 +294,12 @@ function Categorias() {
             Administra las categorías utilizadas para
             organizar los productos de la EcoTienda.
           </p>
-
         </div>
-
       </section>
 
       <section className="admin-categories-section">
-
         <div className="admin-categories-header">
-
           <div>
-
             <p className="section-kicker">
               CLASIFICACIÓN
             </p>
@@ -276,13 +312,10 @@ function Categorias() {
               Crea, modifica y administra las categorías
               disponibles para el catálogo.
             </p>
-
           </div>
 
           <div className="admin-categories-actions">
-
             <div className="admin-categories-count">
-
               <span>
                 Total
               </span>
@@ -290,7 +323,6 @@ function Categorias() {
               <strong>
                 {categorias.length}
               </strong>
-
             </div>
 
             <button
@@ -300,9 +332,7 @@ function Categorias() {
             >
               + Nueva categoría
             </button>
-
           </div>
-
         </div>
 
         {mensaje && (
@@ -313,7 +343,6 @@ function Categorias() {
 
         {error && !mostrarFormulario && (
           <div className="admin-categories-message admin-categories-message-error">
-
             <h3>
               Ocurrió un problema
             </h3>
@@ -321,13 +350,11 @@ function Categorias() {
             <p>
               {error}
             </p>
-
           </div>
         )}
 
         {loading && (
           <div className="admin-categories-message">
-
             <h3>
               Cargando categorías...
             </h3>
@@ -335,13 +362,11 @@ function Categorias() {
             <p>
               Estamos consultando las categorías de EcoCanje.
             </p>
-
           </div>
         )}
 
         {!loading && !error && categorias.length === 0 && (
           <div className="admin-categories-message">
-
             <h3>
               No hay categorías registradas
             </h3>
@@ -349,130 +374,153 @@ function Categorias() {
             <p>
               Puedes comenzar creando la primera categoría.
             </p>
-
           </div>
         )}
 
         {!loading && !error && categorias.length > 0 && (
-          <div className="admin-categories-table-container">
+          <>
+            <div className="admin-products-search">
+              <div className="admin-products-search-field">
+                <label htmlFor="buscar-categorias">
+                  Buscar categorías
+                </label>
 
-            <table className="admin-categories-table">
+                <input
+                  id="buscar-categorias"
+                  type="text"
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  placeholder="Nombre, descripción o estado..."
+                />
+              </div>
 
-              <thead>
+              {busqueda.trim() && (
+                <button
+                  type="button"
+                  className="admin-products-search-clear"
+                  onClick={() => setBusqueda('')}
+                >
+                  Limpiar
+                </button>
+              )}
 
-                <tr>
-                  <th>Categoría</th>
-                  <th>Descripción</th>
-                  <th>Productos</th>
-                  <th>Estado</th>
-                  <th>Registro</th>
-                  <th>Acciones</th>
-                </tr>
+              <div className="admin-products-search-results">
+                <span>
+                  Resultados
+                </span>
 
-              </thead>
+                <strong>
+                  {categoriasFiltradas.length}
+                </strong>
+              </div>
+            </div>
 
-              <tbody>
+            {categoriasFiltradas.length === 0 && (
+              <div className="admin-categories-message">
+                <h3>
+                  No se encontraron categorías
+                </h3>
 
-                {categorias.map((categoria) => (
+                <p>
+                  No existen categorías que coincidan con la búsqueda.
+                </p>
+              </div>
+            )}
 
-                  <tr key={categoria.id}>
+            {categoriasFiltradas.length > 0 && (
+              <div className="admin-categories-table-container">
+                <table className="admin-categories-table">
+                  <thead>
+                    <tr>
+                      <th>Categoría</th>
+                      <th>Descripción</th>
+                      <th>Productos</th>
+                      <th>Estado</th>
+                      <th>Registro</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
 
-                    <td>
+                  <tbody>
+                    {categoriasFiltradas.map((categoria) => (
+                      <tr key={categoria.id}>
+                        <td>
+                          <div className="admin-category-name">
+                            <strong>
+                              {categoria.nombre}
+                            </strong>
+                          </div>
+                        </td>
 
-                      <div className="admin-category-name">
+                        <td>
+                          {categoria.descripcion ||
+                            'Sin descripción'}
+                        </td>
 
-                        <strong>
-                          {categoria.nombre}
-                        </strong>
+                        <td>
+                          <span className="admin-category-products-count">
+                            {categoria.cantidad_productos}
+                          </span>
+                        </td>
 
-                      </div>
+                        <td>
+                          <span
+                            className={`admin-category-status admin-category-status-${categoria.estado}`}
+                          >
+                            {mostrarEstado(categoria.estado)}
+                          </span>
+                        </td>
 
-                    </td>
+                        <td>
+                          {new Date(
+                            categoria.created_at
+                          ).toLocaleDateString('es-PE', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                          })}
+                        </td>
 
-                    <td>
-                      {categoria.descripcion ||
-                        'Sin descripción'}
-                    </td>
+                        <td>
+                          <div className="admin-category-actions">
+                            <button
+                              type="button"
+                              className="admin-table-button"
+                              onClick={() =>
+                                abrirEditarCategoria(categoria)
+                              }
+                            >
+                              Editar
+                            </button>
 
-                    <td>
-
-                      <span className="admin-category-products-count">
-                        {categoria.cantidad_productos}
-                      </span>
-
-                    </td>
-
-                    <td>
-
-                      <span
-                        className={`admin-category-status admin-category-status-${categoria.estado}`}
-                      >
-                        {mostrarEstado(categoria.estado)}
-                      </span>
-
-                    </td>
-
-                    <td>
-
-                      {new Date(
-                        categoria.created_at
-                      ).toLocaleDateString('es-PE', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                      })}
-
-                    </td>
-
-                    <td>
-
-                      <div className="admin-category-actions">
-
-                        <button
-                          type="button"
-                          className="admin-table-button"
-                          onClick={() =>
-                            abrirEditarCategoria(categoria)
-                          }
-                        >
-                          Editar
-                        </button>
-
-                        <button
-                          type="button"
-                          className={
-                            categoria.estado === 'activo'
-                              ? 'admin-table-button admin-table-button-danger'
-                              : 'admin-table-button admin-table-button-success'
-                          }
-                          onClick={() =>
-                            cambiarEstado(categoria)
-                          }
-                        >
-                          {categoria.estado === 'activo'
-                            ? 'Desactivar'
-                            : 'Activar'}
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
-
-          </div>
+                            <button
+                              type="button"
+                              className={
+                                categoria.estado === 'activo'
+                                  ? 'admin-table-button admin-table-button-danger'
+                                  : 'admin-table-button admin-table-button-success'
+                              }
+                              onClick={() =>
+                                abrirCambioEstado(categoria)
+                              }
+                            >
+                              {categoria.estado === 'activo'
+                                ? 'Desactivar'
+                                : 'Activar'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
-
       </section>
 
       {mostrarFormulario && (
-
         <div
           className="admin-category-modal-overlay"
           onMouseDown={(e) => {
@@ -481,18 +529,14 @@ function Categorias() {
             }
           }}
         >
-
           <div
             className="admin-category-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="admin-category-modal-title"
           >
-
             <div className="admin-category-modal-header">
-
               <div>
-
                 <p className="section-kicker">
                   {categoriaEditando
                     ? 'EDITAR CATEGORÍA'
@@ -508,7 +552,6 @@ function Categorias() {
                 <p>
                   Completa la información de la categoría.
                 </p>
-
               </div>
 
               <button
@@ -520,14 +563,12 @@ function Categorias() {
               >
                 ×
               </button>
-
             </div>
 
             <form
               className="admin-category-form"
               onSubmit={guardarCategoria}
             >
-
               {error && (
                 <div className="admin-category-form-error">
                   {error}
@@ -535,9 +576,7 @@ function Categorias() {
               )}
 
               <div className="admin-category-form-grid">
-
                 <div className="admin-form-field">
-
                   <label htmlFor="nombre">
                     Nombre de la categoría
                   </label>
@@ -551,11 +590,9 @@ function Categorias() {
                     placeholder="Ej. Hogar"
                     required
                   />
-
                 </div>
 
                 <div className="admin-form-field">
-
                   <label htmlFor="estado">
                     Estado
                   </label>
@@ -566,7 +603,6 @@ function Categorias() {
                     value={formulario.estado}
                     onChange={handleChange}
                   >
-
                     <option value="activo">
                       Activo
                     </option>
@@ -574,13 +610,10 @@ function Categorias() {
                     <option value="inactivo">
                       Inactivo
                     </option>
-
                   </select>
-
                 </div>
 
                 <div className="admin-form-field admin-form-field-full">
-
                   <label htmlFor="descripcion">
                     Descripción
                   </label>
@@ -593,13 +626,10 @@ function Categorias() {
                     placeholder="Describe brevemente la categoría."
                     rows="4"
                   />
-
                 </div>
-
               </div>
 
               <div className="admin-category-form-actions">
-
                 <button
                   type="button"
                   className="admin-secondary-button"
@@ -620,17 +650,139 @@ function Categorias() {
                       ? 'Guardar cambios'
                       : 'Crear categoría'}
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
-
       )}
 
+      {mostrarModalEstado && categoriaEstadoSeleccionada && (
+        <div
+          className="admin-status-modal-overlay"
+          onMouseDown={(e) => {
+            if (
+              e.target === e.currentTarget &&
+              !cambiandoEstado
+            ) {
+              cerrarCambioEstado()
+            }
+          }}
+        >
+          <div
+            className="admin-status-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-category-status-modal-title"
+          >
+            <div className="admin-status-modal-header">
+              <div>
+                <p className="admin-status-modal-kicker">
+                  GESTIÓN DE CATEGORÍA
+                </p>
+
+                <h2 id="admin-category-status-modal-title">
+                  {categoriaEstadoSeleccionada.estado === 'activo'
+                    ? 'Desactivar categoría'
+                    : 'Activar categoría'}
+                </h2>
+
+                <p>
+                  {categoriaEstadoSeleccionada.estado === 'activo'
+                    ? 'La categoría dejará de estar disponible para el catálogo.'
+                    : 'La categoría volverá a estar disponible para el catálogo.'}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="admin-status-modal-close"
+                onClick={cerrarCambioEstado}
+                disabled={cambiandoEstado}
+                aria-label="Cerrar ventana"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="admin-status-category">
+              <span className="admin-status-category-label">
+                CATEGORÍA SELECCIONADA
+              </span>
+
+              <strong className="admin-status-category-name">
+                {categoriaEstadoSeleccionada.nombre}
+              </strong>
+
+              <p className="admin-status-category-description">
+                {categoriaEstadoSeleccionada.descripcion ||
+                  'Sin descripción disponible.'}
+              </p>
+            </div>
+
+            <div className="admin-status-current">
+              <span>
+                Estado actual
+              </span>
+
+              <strong
+                className={
+                  categoriaEstadoSeleccionada.estado === 'activo'
+                    ? 'is-active'
+                    : 'is-inactive'
+                }
+              >
+                <span className="admin-status-dot" />
+
+                {mostrarEstado(
+                  categoriaEstadoSeleccionada.estado
+                )}
+              </strong>
+            </div>
+
+            <div className="admin-status-modal-message">
+              <strong>
+                {categoriaEstadoSeleccionada.estado === 'activo'
+                  ? '¿Deseas desactivar esta categoría?'
+                  : '¿Deseas activar esta categoría?'}
+              </strong>
+
+              <p>
+                {categoriaEstadoSeleccionada.estado === 'activo'
+                  ? 'La categoría dejará de estar disponible para organizar los productos del catálogo mientras permanezca inactiva.'
+                  : 'La categoría volverá a estar disponible para organizar los productos del catálogo.'}
+              </p>
+            </div>
+
+            <div className="admin-status-modal-actions">
+              <button
+                type="button"
+                className="admin-status-cancel-button"
+                onClick={cerrarCambioEstado}
+                disabled={cambiandoEstado}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className={
+                  categoriaEstadoSeleccionada.estado === 'activo'
+                    ? 'admin-status-confirm-button admin-status-confirm-danger'
+                    : 'admin-status-confirm-button admin-status-confirm-success'
+                }
+                onClick={cambiarEstado}
+                disabled={cambiandoEstado}
+              >
+                {cambiandoEstado
+                  ? 'Procesando...'
+                  : categoriaEstadoSeleccionada.estado === 'activo'
+                    ? 'Sí, desactivar'
+                    : 'Sí, activar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 function Productos() {
   const [productos, setProductos] = useState([])
   const [categorias, setCategorias] = useState([])
+  const [busqueda, setBusqueda] = useState('')
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -316,7 +317,30 @@ function Productos() {
     return estados[estado] || estado
   }
 
-  return (
+    const productosFiltrados = useMemo(() => {
+    const texto = busqueda.trim().toLowerCase()
+
+    if (!texto) {
+      return productos
+    }
+
+    return productos.filter((producto) => {
+      const contenido = [
+        producto.nombre,
+        producto.descripcion,
+        producto.categoria_nombre,
+        producto.estado,
+        producto.estado === 'activo' ? 'activo' : 'inactivo',
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return contenido.includes(texto)
+    })
+  }, [productos, busqueda])
+
+return (
     <main className="admin-products-page">
 
       {/* =====================================================
@@ -340,7 +364,6 @@ function Productos() {
         </div>
       </section>
 
-
       {/* =====================================================
           CONTENIDO
       ===================================================== */}
@@ -363,7 +386,6 @@ function Productos() {
               disponibles para los usuarios.
             </p>
           </div>
-
 
           <div className="admin-products-actions">
 
@@ -389,6 +411,38 @@ function Productos() {
 
         </div>
 
+        {!loading && !error && productos.length > 0 && (
+          <div className="admin-products-search">
+            <div className="admin-products-search-field">
+              <label htmlFor="buscar-productos">
+                Buscar productos
+              </label>
+
+              <input
+                id="buscar-productos"
+                type="text"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Nombre, descripción, categoría o estado..."
+              />
+            </div>
+
+            {busqueda.trim() && (
+              <button
+                type="button"
+                className="admin-products-search-clear"
+                onClick={() => setBusqueda('')}
+              >
+                Limpiar
+              </button>
+            )}
+
+            <div className="admin-products-search-results">
+              <span>Resultados</span>
+              <strong>{productosFiltrados.length}</strong>
+            </div>
+          </div>
+        )}
 
         {/* MENSAJE DE ÉXITO */}
 
@@ -397,7 +451,6 @@ function Productos() {
             {mensaje}
           </div>
         )}
-
 
         {/* ERROR */}
 
@@ -415,7 +468,6 @@ function Productos() {
           </div>
         )}
 
-
         {/* CARGANDO */}
 
         {loading && (
@@ -431,7 +483,6 @@ function Productos() {
 
           </div>
         )}
-
 
         {/* SIN PRODUCTOS */}
 
@@ -449,12 +500,23 @@ function Productos() {
           </div>
         )}
 
+        {!loading &&
+          !error &&
+          productos.length > 0 &&
+          productosFiltrados.length === 0 && (
+            <div className="admin-products-message">
+              <h3>No se encontraron productos</h3>
+              <p>
+                No existen productos que coincidan con la búsqueda.
+              </p>
+            </div>
+          )}
 
-        {/* =====================================================
+{/* =====================================================
             TABLA
         ===================================================== */}
 
-        {!loading && !error && productos.length > 0 && (
+        {!loading && !error && productosFiltrados.length > 0 && (
 
           <div className="admin-products-table-container">
 
@@ -492,10 +554,9 @@ function Productos() {
                 </tr>
               </thead>
 
-
               <tbody>
 
-                {productos.map((producto) => (
+                {productosFiltrados.map((producto) => (
 
                   <tr key={producto.id}>
 
@@ -524,7 +585,6 @@ function Productos() {
 
                         </div>
 
-
                         <div>
 
                           <strong>
@@ -542,14 +602,12 @@ function Productos() {
 
                     </td>
 
-
                     {/* CATEGORÍA */}
 
                     <td>
                       {producto.categoria_nombre ||
                         'Sin categoría'}
                     </td>
-
 
                     {/* PRECIO */}
 
@@ -560,7 +618,6 @@ function Productos() {
                       </strong>
 
                     </td>
-
 
                     {/* STOCK */}
 
@@ -578,7 +635,6 @@ function Productos() {
 
                     </td>
 
-
                     {/* ESTADO */}
 
                     <td>
@@ -590,7 +646,6 @@ function Productos() {
                       </span>
 
                     </td>
-
 
                     {/* FECHA */}
 
@@ -605,7 +660,6 @@ function Productos() {
                       })}
 
                     </td>
-
 
                     {/* ACCIONES */}
 
@@ -622,7 +676,6 @@ function Productos() {
                         >
                           Editar
                         </button>
-
 
                         <button
                           type="button"
@@ -657,7 +710,6 @@ function Productos() {
         )}
 
       </section>
-
 
       {/* =====================================================
           MODAL CREAR / EDITAR PRODUCTO
@@ -709,7 +761,6 @@ function Productos() {
 
               </div>
 
-
               <button
                 type="button"
                 className="admin-product-modal-close"
@@ -722,7 +773,6 @@ function Productos() {
 
             </div>
 
-
             <form
               className="admin-product-form"
               onSubmit={guardarProducto}
@@ -733,7 +783,6 @@ function Productos() {
                   {error}
                 </div>
               )}
-
 
               <div className="admin-product-form-grid">
 
@@ -754,7 +803,6 @@ function Productos() {
                   />
 
                 </div>
-
 
                 <div className="admin-form-field">
 
@@ -788,7 +836,6 @@ function Productos() {
 
                 </div>
 
-
                 <div className="admin-form-field">
 
                   <label htmlFor="precio">
@@ -809,7 +856,6 @@ function Productos() {
 
                 </div>
 
-
                 <div className="admin-form-field">
 
                   <label htmlFor="stock">
@@ -829,7 +875,6 @@ function Productos() {
                   />
 
                 </div>
-
 
                 <div className="admin-form-field">
 
@@ -856,7 +901,6 @@ function Productos() {
 
                 </div>
 
-
                 <div className="admin-form-field">
 
                   <label htmlFor="imagen_url">
@@ -873,7 +917,6 @@ function Productos() {
                   />
 
                 </div>
-
 
                 <div className="admin-form-field admin-form-field-full">
 
@@ -894,7 +937,6 @@ function Productos() {
 
               </div>
 
-
               <div className="admin-product-form-actions">
 
                 <button
@@ -905,7 +947,6 @@ function Productos() {
                 >
                   Cancelar
                 </button>
-
 
                 <button
                   type="submit"
@@ -930,7 +971,6 @@ function Productos() {
         </div>
 
       )}
-
 
       {/* =====================================================
           MODAL ACTIVAR / DESACTIVAR PRODUCTO
@@ -987,7 +1027,6 @@ function Productos() {
 
               </div>
 
-
               <button
                 type="button"
                 className="admin-status-modal-close"
@@ -999,7 +1038,6 @@ function Productos() {
               </button>
 
             </div>
-
 
             {/* PRODUCTO SELECCIONADO */}
 
@@ -1024,7 +1062,6 @@ function Productos() {
 
               </div>
 
-
               <div className="admin-status-product-info">
 
                 <span className="admin-status-product-label">
@@ -1043,7 +1080,6 @@ function Productos() {
               </div>
 
             </div>
-
 
             {/* ESTADO ACTUAL */}
 
@@ -1071,7 +1107,6 @@ function Productos() {
 
             </div>
 
-
             {/* MENSAJE */}
 
             <div className="admin-status-modal-message">
@@ -1094,7 +1129,6 @@ function Productos() {
 
             </div>
 
-
             {/* BOTONES */}
 
             <div className="admin-status-modal-actions">
@@ -1107,7 +1141,6 @@ function Productos() {
               >
                 Cancelar
               </button>
-
 
               <button
                 type="button"

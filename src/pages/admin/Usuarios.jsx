@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 function Usuarios() {
   const [usuarios, setUsuarios] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Búsqueda en tiempo real
+  const [busqueda, setBusqueda] = useState('')
 
   // Administrador actualmente autenticado
   const [adminActualId, setAdminActualId] = useState(null)
@@ -117,6 +120,36 @@ function Usuarios() {
 
     return roles[rol] || rol
   }
+
+  /*
+    BÚSQUEDA EN TIEMPO REAL
+
+    La tabla se actualiza automáticamente
+    mientras el administrador escribe.
+  */
+  const usuariosFiltrados = useMemo(() => {
+    const texto = busqueda.trim().toLowerCase()
+
+    if (!texto) {
+      return usuarios
+    }
+
+    return usuarios.filter((usuario) => {
+      const contenido = [
+        usuario.nombres,
+        usuario.apellidos,
+        usuario.email,
+        usuario.rol,
+        mostrarRol(usuario.rol),
+        usuario.nivel,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return contenido.includes(texto)
+    })
+  }, [usuarios, busqueda])
 
   /*
     Abrir modal solamente si el administrador actual
@@ -314,7 +347,9 @@ function Usuarios() {
   return (
     <main className="admin-users-page">
 
-      {/* HERO */}
+      {/* =====================================================
+          HERO
+      ===================================================== */}
 
       <section className="admin-users-hero">
 
@@ -337,7 +372,9 @@ function Usuarios() {
       </section>
 
 
-      {/* RESUMEN */}
+      {/* =====================================================
+          CONTENIDO
+      ===================================================== */}
 
       <section className="admin-users-section">
 
@@ -379,7 +416,54 @@ function Usuarios() {
         </div>
 
 
-        {/* CARGANDO */}
+        {/* =====================================================
+            BARRA DE BÚSQUEDA EN TIEMPO REAL
+        ===================================================== */}
+
+        {!loading && !error && (
+
+          <div className="admin-users-search">
+
+            <div className="admin-users-search-field">
+
+              <label htmlFor="buscar-usuarios">
+                Buscar
+              </label>
+
+              <input
+                id="buscar-usuarios"
+                type="text"
+                value={busqueda}
+                onChange={(event) =>
+                  setBusqueda(event.target.value)
+                }
+                placeholder="Nombre, apellido, correo o rol..."
+                autoComplete="off"
+              />
+
+            </div>
+
+
+            <div className="admin-users-search-results">
+
+              <span>
+                Resultados
+              </span>
+
+              <strong>
+                {usuariosFiltrados.length}
+              </strong>
+
+            </div>
+
+          </div>
+
+        )}
+
+
+        {/* =====================================================
+            CARGANDO
+        ===================================================== */}
 
         {loading && (
 
@@ -398,7 +482,9 @@ function Usuarios() {
         )}
 
 
-        {/* ERROR */}
+        {/* =====================================================
+            ERROR
+        ===================================================== */}
 
         {!loading && error && (
 
@@ -417,7 +503,9 @@ function Usuarios() {
         )}
 
 
-        {/* SIN USUARIOS */}
+        {/* =====================================================
+            SIN USUARIOS
+        ===================================================== */}
 
         {!loading &&
           !error &&
@@ -435,14 +523,40 @@ function Usuarios() {
 
             </div>
 
-          )}
+        )}
 
 
-        {/* TABLA */}
+        {/* =====================================================
+            SIN RESULTADOS
+        ===================================================== */}
 
         {!loading &&
           !error &&
-          usuarios.length > 0 && (
+          usuarios.length > 0 &&
+          usuariosFiltrados.length === 0 && (
+
+            <div className="admin-users-message">
+
+              <h3>
+                No se encontraron usuarios
+              </h3>
+
+              <p>
+                No existen usuarios que coincidan con la búsqueda.
+              </p>
+
+            </div>
+
+        )}
+
+
+        {/* =====================================================
+            TABLA
+        ===================================================== */}
+
+        {!loading &&
+          !error &&
+          usuariosFiltrados.length > 0 && (
 
             <div className="admin-users-table-container">
 
@@ -491,7 +605,7 @@ function Usuarios() {
 
                 <tbody>
 
-                  {usuarios.map((usuario) => {
+                  {usuariosFiltrados.map((usuario) => {
 
                     const esUsuarioActual =
                       usuario.id === adminActualId
@@ -623,12 +737,14 @@ function Usuarios() {
 
             </div>
 
-          )}
+        )}
 
       </section>
 
 
-      {/* MODAL CAMBIAR ROL */}
+      {/* =====================================================
+          MODAL CAMBIAR ROL
+      ===================================================== */}
 
       {usuarioSeleccionado && (
 

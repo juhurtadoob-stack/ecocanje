@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 const beneficioInicial = {
@@ -15,12 +15,19 @@ function Beneficios() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [cambiandoEstado, setCambiandoEstado] = useState(false)
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
+  const [busqueda, setBusqueda] = useState('')
+
   const [modalOpen, setModalOpen] = useState(false)
   const [editingBenefit, setEditingBenefit] = useState(null)
+
+  const [mostrarModalEstado, setMostrarModalEstado] = useState(false)
+  const [beneficioEstadoSeleccionado, setBeneficioEstadoSeleccionado] =
+    useState(null)
 
   const [form, setForm] = useState(beneficioInicial)
   const [formError, setFormError] = useState('')
@@ -28,6 +35,18 @@ function Beneficios() {
   useEffect(() => {
     cargarBeneficios()
   }, [])
+
+  useEffect(() => {
+    if (modalOpen || mostrarModalEstado) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [modalOpen, mostrarModalEstado])
 
   const cargarBeneficios = async () => {
     setLoading(true)
@@ -39,9 +58,11 @@ function Beneficios() {
 
     if (benefitsError) {
       console.error(benefitsError)
+
       setError(
         'No se pudieron cargar los beneficios administrativos.'
       )
+
       setLoading(false)
       return
     }
@@ -49,6 +70,31 @@ function Beneficios() {
     setBeneficios(data || [])
     setLoading(false)
   }
+
+  const beneficiosFiltrados = useMemo(() => {
+    const texto = busqueda.trim().toLowerCase()
+
+    if (!texto) {
+      return beneficios
+    }
+
+    return beneficios.filter((beneficio) => {
+      const contenido = [
+        beneficio.nombre,
+        beneficio.descripcion,
+        beneficio.estado,
+        beneficio.estado === 'activo' ? 'activo' : 'inactivo',
+        beneficio.puntos_requeridos,
+        beneficio.descuento_porcentaje,
+        beneficio.dias_vigencia,
+      ]
+        .filter((valor) => valor !== null && valor !== undefined)
+        .join(' ')
+        .toLowerCase()
+
+      return contenido.includes(texto)
+    })
+  }, [beneficios, busqueda])
 
   const abrirNuevo = () => {
     setEditingBenefit(null)
@@ -84,7 +130,9 @@ function Beneficios() {
   }
 
   const cerrarModal = () => {
-    if (saving) return
+    if (saving) {
+      return
+    }
 
     setModalOpen(false)
     setEditingBenefit(null)
@@ -115,7 +163,9 @@ function Beneficios() {
     const dias = Number(form.dias_vigencia)
 
     if (!nombre) {
-      setFormError('El nombre del beneficio es obligatorio.')
+      setFormError(
+        'El nombre del beneficio es obligatorio.'
+      )
       return
     }
 
@@ -220,20 +270,37 @@ function Beneficios() {
     await cargarBeneficios()
   }
 
-  const cambiarEstado = async (beneficio) => {
+  const abrirCambioEstado = (beneficio) => {
+    setBeneficioEstadoSeleccionado(beneficio)
     setError('')
     setSuccess('')
+    setMostrarModalEstado(true)
+  }
+
+  const cerrarCambioEstado = () => {
+    if (cambiandoEstado) {
+      return
+    }
+
+    setMostrarModalEstado(false)
+    setBeneficioEstadoSeleccionado(null)
+  }
+
+  const cambiarEstado = async () => {
+    if (!beneficioEstadoSeleccionado) {
+      return
+    }
+
+    setCambiandoEstado(true)
+    setError('')
+    setSuccess('')
+
+    const beneficio = beneficioEstadoSeleccionado
 
     const accion =
       beneficio.estado === 'activo'
         ? 'desactivar'
         : 'activar'
-
-    const confirmado = window.confirm(
-      `¿Deseas ${accion} el beneficio "${beneficio.nombre}"?`
-    )
-
-    if (!confirmado) return
 
     const { error: toggleError } = await supabase.rpc(
       'toggle_admin_benefit_status',
@@ -250,6 +317,7 @@ function Beneficios() {
           'No se pudo cambiar el estado del beneficio.'
       )
 
+      setCambiandoEstado(false)
       return
     }
 
@@ -261,15 +329,18 @@ function Beneficios() {
       } correctamente.`
     )
 
+    setMostrarModalEstado(false)
+    setBeneficioEstadoSeleccionado(null)
+
     await cargarBeneficios()
+
+    setCambiandoEstado(false)
   }
 
   return (
     <main className="admin-benefits-page">
-
       <section className="admin-benefits-hero">
         <div>
-
           <p className="section-kicker">
             PANEL DE ADMINISTRACIÓN
           </p>
@@ -282,17 +353,12 @@ function Beneficios() {
             Administra los beneficios que los usuarios pueden
             obtener mediante el uso de sus puntos.
           </p>
-
         </div>
       </section>
 
-
       <section className="admin-benefits-section">
-
         <div className="admin-benefits-header">
-
           <div>
-
             <p className="section-kicker">
               GESTIÓN DE BENEFICIOS
             </p>
@@ -305,14 +371,10 @@ function Beneficios() {
               Configura los puntos necesarios, descuentos y
               vigencia de cada beneficio.
             </p>
-
           </div>
 
-
           <div className="admin-benefits-actions">
-
             <div className="admin-benefits-count">
-
               <span>
                 Total
               </span>
@@ -320,9 +382,7 @@ function Beneficios() {
               <strong>
                 {beneficios.length}
               </strong>
-
             </div>
-
 
             <button
               type="button"
@@ -331,11 +391,8 @@ function Beneficios() {
             >
               + Nuevo beneficio
             </button>
-
           </div>
-
         </div>
-
 
         {success && (
           <div className="admin-benefits-success">
@@ -343,10 +400,8 @@ function Beneficios() {
           </div>
         )}
 
-
         {loading && (
           <div className="admin-benefits-message">
-
             <h3>
               Cargando beneficios...
             </h3>
@@ -354,14 +409,11 @@ function Beneficios() {
             <p>
               Estamos consultando la información disponible.
             </p>
-
           </div>
         )}
 
-
         {!loading && error && (
           <div className="admin-benefits-message admin-benefits-message-error">
-
             <h3>
               No se pudieron cargar los beneficios
             </h3>
@@ -369,16 +421,13 @@ function Beneficios() {
             <p>
               {error}
             </p>
-
           </div>
         )}
-
 
         {!loading &&
           !error &&
           beneficios.length === 0 && (
             <div className="admin-benefits-message">
-
               <h3>
                 No hay beneficios registrados
               </h3>
@@ -387,171 +436,184 @@ function Beneficios() {
                 Crea el primer beneficio utilizando el botón
                 "Nuevo beneficio".
               </p>
-
             </div>
           )}
-
 
         {!loading &&
           !error &&
           beneficios.length > 0 && (
-            <div className="admin-benefits-table-container">
+            <>
+              <div className="admin-products-search">
+                <div className="admin-products-search-field">
+                  <label htmlFor="buscar-beneficios">
+                    Buscar beneficios
+                  </label>
 
-              <table className="admin-benefits-table">
+                  <input
+                    id="buscar-beneficios"
+                    type="text"
+                    value={busqueda}
+                    onChange={(event) =>
+                      setBusqueda(event.target.value)
+                    }
+                    placeholder="Nombre, descripción, puntos, descuento o estado..."
+                  />
+                </div>
 
-                <thead>
-                  <tr>
+                {busqueda.trim() && (
+                  <button
+                    type="button"
+                    className="admin-products-search-clear"
+                    onClick={() => setBusqueda('')}
+                  >
+                    Limpiar
+                  </button>
+                )}
 
-                    <th>
-                      Beneficio
-                    </th>
+                <div className="admin-products-search-results">
+                  <span>
+                    Resultados
+                  </span>
 
-                    <th>
-                      Puntos
-                    </th>
+                  <strong>
+                    {beneficiosFiltrados.length}
+                  </strong>
+                </div>
+              </div>
 
-                    <th>
-                      Descuento
-                    </th>
+              {beneficiosFiltrados.length === 0 && (
+                <div className="admin-benefits-message">
+                  <h3>
+                    No se encontraron beneficios
+                  </h3>
 
-                    <th>
-                      Vigencia
-                    </th>
+                  <p>
+                    No existen beneficios que coincidan con la búsqueda.
+                  </p>
+                </div>
+              )}
 
-                    <th>
-                      Estado
-                    </th>
+              {beneficiosFiltrados.length > 0 && (
+                <div className="admin-benefits-table-container">
+                  <table className="admin-benefits-table">
+                    <thead>
+                      <tr>
+                        <th>
+                          Beneficio
+                        </th>
 
-                    <th>
-                      Acciones
-                    </th>
+                        <th>
+                          Puntos
+                        </th>
 
-                  </tr>
-                </thead>
+                        <th>
+                          Descuento
+                        </th>
 
+                        <th>
+                          Vigencia
+                        </th>
 
-                <tbody>
+                        <th>
+                          Estado
+                        </th>
 
-                  {beneficios.map((beneficio) => (
+                        <th>
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
 
-                    <tr key={beneficio.id}>
+                    <tbody>
+                      {beneficiosFiltrados.map((beneficio) => (
+                        <tr key={beneficio.id}>
+                          <td>
+                            <div className="admin-benefit-name">
+                              <strong>
+                                {beneficio.nombre}
+                              </strong>
 
-                      <td>
+                              <span>
+                                {beneficio.descripcion ||
+                                  'Sin descripción'}
+                              </span>
+                            </div>
+                          </td>
 
-                        <div className="admin-benefit-name">
+                          <td>
+                            <strong className="admin-benefit-points">
+                              {beneficio.puntos_requeridos}
+                            </strong>
+                          </td>
 
-                          <strong>
-                            {beneficio.nombre}
-                          </strong>
+                          <td>
+                            <span className="admin-benefit-discount">
+                              {Number(
+                                beneficio.descuento_porcentaje
+                              )}%
+                            </span>
+                          </td>
 
-                          <span>
-                            {beneficio.descripcion ||
-                              'Sin descripción'}
-                          </span>
+                          <td>
+                            {beneficio.dias_vigencia} días
+                          </td>
 
-                        </div>
+                          <td>
+                            <span
+                              className={`admin-benefit-status ${
+                                beneficio.estado === 'activo'
+                                  ? 'admin-benefit-status-activo'
+                                  : 'admin-benefit-status-inactivo'
+                              }`}
+                            >
+                              {beneficio.estado}
+                            </span>
+                          </td>
 
-                      </td>
+                          <td>
+                            <div className="admin-benefit-actions">
+                              <button
+                                type="button"
+                                className="admin-table-button"
+                                onClick={() =>
+                                  abrirEditar(beneficio)
+                                }
+                              >
+                                Editar
+                              </button>
 
-
-                      <td>
-
-                        <strong className="admin-benefit-points">
-                          {beneficio.puntos_requeridos}
-                        </strong>
-
-                      </td>
-
-
-                      <td>
-
-                        <span className="admin-benefit-discount">
-                          {Number(
-                            beneficio.descuento_porcentaje
-                          )}%
-                        </span>
-
-                      </td>
-
-
-                      <td>
-                        {beneficio.dias_vigencia} días
-                      </td>
-
-
-                      <td>
-
-                        <span
-                          className={`admin-benefit-status ${
-                            beneficio.estado === 'activo'
-                              ? 'admin-benefit-status-activo'
-                              : 'admin-benefit-status-inactivo'
-                          }`}
-                        >
-                          {beneficio.estado}
-                        </span>
-
-                      </td>
-
-
-                      <td>
-
-                        <div className="admin-benefit-actions">
-
-                          <button
-                            type="button"
-                            className="admin-table-button"
-                            onClick={() =>
-                              abrirEditar(beneficio)
-                            }
-                          >
-                            Editar
-                          </button>
-
-
-                          <button
-                            type="button"
-                            className={`admin-table-button ${
-                              beneficio.estado === 'activo'
-                                ? 'admin-table-button-danger'
-                                : 'admin-table-button-success'
-                            }`}
-                            onClick={() =>
-                              cambiarEstado(beneficio)
-                            }
-                          >
-                            {beneficio.estado === 'activo'
-                              ? 'Desactivar'
-                              : 'Activar'}
-                          </button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  ))}
-
-                </tbody>
-
-              </table>
-
-            </div>
+                              <button
+                                type="button"
+                                className={`admin-table-button ${
+                                  beneficio.estado === 'activo'
+                                    ? 'admin-table-button-danger'
+                                    : 'admin-table-button-success'
+                                }`}
+                                onClick={() =>
+                                  abrirCambioEstado(beneficio)
+                                }
+                              >
+                                {beneficio.estado === 'activo'
+                                  ? 'Desactivar'
+                                  : 'Activar'}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
           )}
-
       </section>
-
 
       {modalOpen && (
         <div className="admin-benefit-modal-overlay">
-
           <div className="admin-benefit-modal">
-
             <div className="admin-benefit-modal-header">
-
               <div>
-
                 <p className="section-kicker">
                   {editingBenefit
                     ? 'EDITAR BENEFICIO'
@@ -568,9 +630,7 @@ function Beneficios() {
                   Configura los datos del beneficio para los
                   usuarios de EcoCanje.
                 </p>
-
               </div>
-
 
               <button
                 type="button"
@@ -580,26 +640,20 @@ function Beneficios() {
               >
                 ×
               </button>
-
             </div>
-
 
             <form
               className="admin-benefit-form"
               onSubmit={guardarBeneficio}
             >
-
               {formError && (
                 <div className="admin-benefit-form-error">
                   {formError}
                 </div>
               )}
 
-
               <div className="admin-benefit-form-grid">
-
                 <div className="admin-form-field admin-form-field-full">
-
                   <label htmlFor="beneficio-nombre">
                     Nombre
                   </label>
@@ -613,12 +667,9 @@ function Beneficios() {
                     placeholder="Ej. Descuento Verde"
                     disabled={saving}
                   />
-
                 </div>
 
-
                 <div className="admin-form-field">
-
                   <label htmlFor="beneficio-puntos">
                     Puntos requeridos
                   </label>
@@ -634,12 +685,9 @@ function Beneficios() {
                     placeholder="Ej. 250"
                     disabled={saving}
                   />
-
                 </div>
 
-
                 <div className="admin-form-field">
-
                   <label htmlFor="beneficio-descuento">
                     Descuento (%)
                   </label>
@@ -656,12 +704,9 @@ function Beneficios() {
                     placeholder="Ej. 10"
                     disabled={saving}
                   />
-
                 </div>
 
-
                 <div className="admin-form-field">
-
                   <label htmlFor="beneficio-vigencia">
                     Días de vigencia
                   </label>
@@ -677,12 +722,9 @@ function Beneficios() {
                     placeholder="Ej. 30"
                     disabled={saving}
                   />
-
                 </div>
 
-
                 <div className="admin-form-field">
-
                   <label htmlFor="beneficio-estado">
                     Estado
                   </label>
@@ -702,12 +744,9 @@ function Beneficios() {
                       Inactivo
                     </option>
                   </select>
-
                 </div>
 
-
                 <div className="admin-form-field admin-form-field-full">
-
                   <label htmlFor="beneficio-descripcion">
                     Descripción
                   </label>
@@ -720,14 +759,10 @@ function Beneficios() {
                     placeholder="Describe brevemente el beneficio."
                     disabled={saving}
                   />
-
                 </div>
-
               </div>
 
-
               <div className="admin-benefit-form-actions">
-
                 <button
                   type="button"
                   className="admin-secondary-button"
@@ -736,7 +771,6 @@ function Beneficios() {
                 >
                   Cancelar
                 </button>
-
 
                 <button
                   type="submit"
@@ -749,16 +783,155 @@ function Beneficios() {
                       ? 'Guardar cambios'
                       : 'Crear beneficio'}
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
       )}
 
+      {mostrarModalEstado && beneficioEstadoSeleccionado && (
+        <div
+          className="admin-status-modal-overlay"
+          onMouseDown={(event) => {
+            if (
+              event.target === event.currentTarget &&
+              !cambiandoEstado
+            ) {
+              cerrarCambioEstado()
+            }
+          }}
+        >
+          <div
+            className="admin-status-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-benefit-status-modal-title"
+          >
+            <div className="admin-status-modal-header">
+              <div>
+                <p className="admin-status-modal-kicker">
+                  GESTIÓN DE BENEFICIO
+                </p>
+
+                <h2 id="admin-benefit-status-modal-title">
+                  {beneficioEstadoSeleccionado.estado === 'activo'
+                    ? 'Desactivar beneficio'
+                    : 'Activar beneficio'}
+                </h2>
+
+                <p>
+                  {beneficioEstadoSeleccionado.estado === 'activo'
+                    ? 'El beneficio dejará de estar disponible para los usuarios.'
+                    : 'El beneficio volverá a estar disponible para los usuarios.'}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="admin-status-modal-close"
+                onClick={cerrarCambioEstado}
+                disabled={cambiandoEstado}
+                aria-label="Cerrar ventana"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="admin-status-benefit">
+              <span className="admin-status-benefit-label">
+                BENEFICIO SELECCIONADO
+              </span>
+
+              <strong className="admin-status-benefit-name">
+                {beneficioEstadoSeleccionado.nombre}
+              </strong>
+
+              <p className="admin-status-benefit-description">
+                {beneficioEstadoSeleccionado.descripcion ||
+                  'Sin descripción disponible.'}
+              </p>
+
+              <div className="admin-status-benefit-details">
+                <span>
+                  {beneficioEstadoSeleccionado.puntos_requeridos} puntos
+                </span>
+
+                <span>
+                  {Number(
+                    beneficioEstadoSeleccionado.descuento_porcentaje
+                  )}% de descuento
+                </span>
+
+                <span>
+                  {beneficioEstadoSeleccionado.dias_vigencia} días
+                </span>
+              </div>
+            </div>
+
+            <div className="admin-status-current">
+              <span>
+                Estado actual
+              </span>
+
+              <strong
+                className={
+                  beneficioEstadoSeleccionado.estado === 'activo'
+                    ? 'is-active'
+                    : 'is-inactive'
+                }
+              >
+                <span className="admin-status-dot" />
+
+                {beneficioEstadoSeleccionado.estado === 'activo'
+                  ? 'Activo'
+                  : 'Inactivo'}
+              </strong>
+            </div>
+
+            <div className="admin-status-modal-message">
+              <strong>
+                {beneficioEstadoSeleccionado.estado === 'activo'
+                  ? '¿Deseas desactivar este beneficio?'
+                  : '¿Deseas activar este beneficio?'}
+              </strong>
+
+              <p>
+                {beneficioEstadoSeleccionado.estado === 'activo'
+                  ? 'Los usuarios ya no podrán encontrar ni utilizar este beneficio mientras permanezca inactivo.'
+                  : 'Los usuarios podrán volver a encontrar y utilizar este beneficio.'}
+              </p>
+            </div>
+
+            <div className="admin-status-modal-actions">
+              <button
+                type="button"
+                className="admin-status-cancel-button"
+                onClick={cerrarCambioEstado}
+                disabled={cambiandoEstado}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className={
+                  beneficioEstadoSeleccionado.estado === 'activo'
+                    ? 'admin-status-confirm-button admin-status-confirm-danger'
+                    : 'admin-status-confirm-button admin-status-confirm-success'
+                }
+                onClick={cambiarEstado}
+                disabled={cambiandoEstado}
+              >
+                {cambiandoEstado
+                  ? 'Procesando...'
+                  : beneficioEstadoSeleccionado.estado === 'activo'
+                    ? 'Sí, desactivar'
+                    : 'Sí, activar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

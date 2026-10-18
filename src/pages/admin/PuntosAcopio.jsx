@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 const formularioInicial = {
@@ -15,8 +15,10 @@ const formularioInicial = {
 
 function PuntosAcopio() {
   const [puntos, setPuntos] = useState([])
+  const [busqueda, setBusqueda] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [cambiandoEstado, setCambiandoEstado] = useState(false)
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -24,11 +26,30 @@ function PuntosAcopio() {
   const [modalAbierto, setModalAbierto] = useState(false)
   const [puntoEditando, setPuntoEditando] = useState(null)
 
-  const [formulario, setFormulario] = useState(formularioInicial)
+  const [mostrarModalEstado, setMostrarModalEstado] =
+    useState(false)
+
+  const [puntoEstadoSeleccionado, setPuntoEstadoSeleccionado] =
+    useState(null)
+
+  const [formulario, setFormulario] =
+    useState(formularioInicial)
 
   useEffect(() => {
     cargarPuntos()
   }, [])
+
+  useEffect(() => {
+    if (modalAbierto || mostrarModalEstado) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [modalAbierto, mostrarModalEstado])
 
   const cargarPuntos = async () => {
     setLoading(true)
@@ -46,7 +67,7 @@ function PuntosAcopio() {
 
       setError(
         error.message ||
-        'No se pudieron cargar los puntos de acopio.'
+          'No se pudieron cargar los puntos de acopio.'
       )
 
       setPuntos([])
@@ -59,7 +80,7 @@ function PuntosAcopio() {
 
   const abrirNuevo = () => {
     setPuntoEditando(null)
-    setFormulario(formularioInicial)
+    setFormulario({ ...formularioInicial })
     setError('')
     setSuccess('')
     setModalAbierto(true)
@@ -86,11 +107,30 @@ function PuntosAcopio() {
   }
 
   const cerrarModal = () => {
-    if (saving) return
+    if (saving) {
+      return
+    }
 
     setModalAbierto(false)
     setPuntoEditando(null)
-    setFormulario(formularioInicial)
+    setFormulario({ ...formularioInicial })
+    setError('')
+  }
+
+  const abrirCambioEstado = (punto) => {
+    setPuntoEstadoSeleccionado(punto)
+    setError('')
+    setSuccess('')
+    setMostrarModalEstado(true)
+  }
+
+  const cerrarCambioEstado = () => {
+    if (cambiandoEstado) {
+      return
+    }
+
+    setMostrarModalEstado(false)
+    setPuntoEstadoSeleccionado(null)
   }
 
   const handleChange = (event) => {
@@ -168,7 +208,7 @@ function PuntosAcopio() {
 
       setError(
         result.error.message ||
-        'No se pudo guardar el punto de acopio.'
+          'No se pudo guardar el punto de acopio.'
       )
 
       setSaving(false)
@@ -178,7 +218,7 @@ function PuntosAcopio() {
     setSaving(false)
     setModalAbierto(false)
     setPuntoEditando(null)
-    setFormulario(formularioInicial)
+    setFormulario({ ...formularioInicial })
 
     setSuccess(
       puntoEditando
@@ -189,18 +229,14 @@ function PuntosAcopio() {
     await cargarPuntos()
   }
 
-  const cambiarEstado = async (punto) => {
-    const accion =
-      punto.estado === 'activo'
-        ? 'desactivar'
-        : 'activar'
+  const cambiarEstado = async () => {
+    if (!puntoEstadoSeleccionado) {
+      return
+    }
 
-    const confirmado = window.confirm(
-      `¿Deseas ${accion} el punto de acopio "${punto.nombre}"?`
-    )
+    const punto = puntoEstadoSeleccionado
 
-    if (!confirmado) return
-
+    setCambiandoEstado(true)
     setError('')
     setSuccess('')
 
@@ -219,22 +255,62 @@ function PuntosAcopio() {
 
       setError(
         error.message ||
-        'No se pudo cambiar el estado del punto de acopio.'
+          'No se pudo cambiar el estado del punto de acopio.'
       )
 
+      setCambiandoEstado(false)
       return
     }
 
+    const accion =
+      punto.estado === 'activo'
+        ? 'desactivado'
+        : 'activado'
+
+    setMostrarModalEstado(false)
+    setPuntoEstadoSeleccionado(null)
+    setCambiandoEstado(false)
+
     setSuccess(
-      `Punto de acopio ${
-        accion === 'activar'
-          ? 'activado'
-          : 'desactivado'
-      } correctamente.`
+      `Punto de acopio ${accion} correctamente.`
     )
 
     await cargarPuntos()
   }
+
+  const mostrarEstado = (estado) => {
+    return estado === 'activo'
+      ? 'Activo'
+      : 'Inactivo'
+  }
+
+  const puntosFiltrados = useMemo(() => {
+    const texto = busqueda.trim().toLowerCase()
+
+    if (!texto) {
+      return puntos
+    }
+
+    return puntos.filter((punto) => {
+      const contenido = [
+        punto.nombre,
+        punto.direccion,
+        punto.referencia,
+        punto.distrito,
+        punto.provincia,
+        punto.departamento,
+        punto.horario,
+        punto.telefono,
+        punto.estado,
+        punto.estado === 'activo' ? 'activo' : 'inactivo',
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return contenido.includes(texto)
+    })
+  }, [puntos, busqueda])
 
   return (
     <section className="admin-collection-points-page">
@@ -298,6 +374,44 @@ function PuntosAcopio() {
           </div>
 
 
+          <div className="admin-collection-points-search">
+
+            <div className="admin-collection-points-search-field">
+
+              <label htmlFor="buscar-puntos-acopio">
+                Buscar puntos de acopio
+              </label>
+
+              <input
+                id="buscar-puntos-acopio"
+                type="text"
+                value={busqueda}
+                onChange={(event) =>
+                  setBusqueda(event.target.value)
+                }
+                placeholder="Nombre, dirección, distrito, horario, teléfono o estado..."
+              />
+
+            </div>
+
+            {busqueda.trim() && (
+              <button
+                type="button"
+                className="admin-collection-points-search-clear"
+                onClick={() => setBusqueda('')}
+              >
+                Limpiar
+              </button>
+            )}
+
+            <div className="admin-collection-points-search-results">
+              <span>Resultados</span>
+              <strong>{puntosFiltrados.length}</strong>
+            </div>
+
+          </div>
+
+
           {success && (
             <div className="admin-collection-points-success">
               {success}
@@ -305,7 +419,7 @@ function PuntosAcopio() {
           )}
 
 
-          {error && !modalAbierto && (
+          {error && !modalAbierto && !mostrarModalEstado && (
             <div className="admin-collection-points-message admin-collection-points-message-error">
               {error}
             </div>
@@ -313,14 +427,41 @@ function PuntosAcopio() {
 
 
           {loading ? (
+
             <div className="admin-collection-points-message">
               Cargando puntos de acopio...
             </div>
+
           ) : puntos.length === 0 ? (
+
             <div className="admin-collection-points-message">
-              No hay puntos de acopio registrados.
+
+              <h3>
+                No hay puntos de acopio registrados
+              </h3>
+
+              <p>
+                Puedes comenzar creando el primer punto de acopio.
+              </p>
+
             </div>
+
+          ) : puntosFiltrados.length === 0 ? (
+
+            <div className="admin-collection-points-message">
+
+              <h3>
+                No se encontraron puntos de acopio
+              </h3>
+
+              <p>
+                No existen puntos de acopio que coincidan con la búsqueda.
+              </p>
+
+            </div>
+
           ) : (
+
             <div className="admin-collection-points-table-container">
 
               <table className="admin-collection-points-table">
@@ -340,13 +481,16 @@ function PuntosAcopio() {
 
                 <tbody>
 
-                  {puntos.map((punto) => (
+                  {puntosFiltrados.map((punto) => (
+
                     <tr key={punto.id}>
 
                       <td>
 
                         <div className="admin-collection-point-name">
-                          {punto.nombre}
+                          <strong>
+                            {punto.nombre}
+                          </strong>
                         </div>
 
                         {punto.referencia && (
@@ -367,6 +511,7 @@ function PuntosAcopio() {
                         {(punto.distrito ||
                           punto.provincia ||
                           punto.departamento) && (
+
                           <div className="admin-collection-point-location">
 
                             {[
@@ -378,18 +523,21 @@ function PuntosAcopio() {
                               .join(', ')}
 
                           </div>
+
                         )}
 
                       </td>
 
 
                       <td>
-                        {punto.horario || 'No especificado'}
+                        {punto.horario ||
+                          'No especificado'}
                       </td>
 
 
                       <td>
-                        {punto.telefono || 'No registrado'}
+                        {punto.telefono ||
+                          'No registrado'}
                       </td>
 
 
@@ -402,9 +550,9 @@ function PuntosAcopio() {
                               : 'admin-collection-point-status-inactivo'
                           }`}
                         >
-                          {punto.estado === 'activo'
-                            ? 'Activo'
-                            : 'Inactivo'}
+                          {mostrarEstado(
+                            punto.estado
+                          )}
                         </span>
 
                       </td>
@@ -426,9 +574,13 @@ function PuntosAcopio() {
 
                           <button
                             type="button"
-                            className="admin-table-button admin-table-button-secondary"
+                            className={
+                              punto.estado === 'activo'
+                                ? 'admin-table-button admin-table-button-danger'
+                                : 'admin-table-button admin-table-button-success'
+                            }
                             onClick={() =>
-                              cambiarEstado(punto)
+                              abrirCambioEstado(punto)
                             }
                           >
                             {punto.estado === 'activo'
@@ -441,6 +593,7 @@ function PuntosAcopio() {
                       </td>
 
                     </tr>
+
                   ))}
 
                 </tbody>
@@ -448,6 +601,7 @@ function PuntosAcopio() {
               </table>
 
             </div>
+
           )}
 
         </section>
@@ -455,16 +609,37 @@ function PuntosAcopio() {
       </div>
 
 
-      {modalAbierto && (
-        <div className="admin-collection-point-modal-overlay">
+      {/* =====================================================
+          MODAL CREAR / EDITAR PUNTO DE ACOPIO
+      ===================================================== */}
 
-          <div className="admin-collection-point-modal">
+      {modalAbierto && (
+
+        <div
+          className="admin-collection-point-modal-overlay"
+          onMouseDown={(event) => {
+
+            if (
+              event.target === event.currentTarget
+            ) {
+              cerrarModal()
+            }
+
+          }}
+        >
+
+          <div
+            className="admin-collection-point-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-collection-point-modal-title"
+          >
 
             <div className="admin-collection-point-modal-header">
 
               <div>
 
-                <h2>
+                <h2 id="admin-collection-point-modal-title">
                   {puntoEditando
                     ? 'Editar punto de acopio'
                     : 'Nuevo punto de acopio'}
@@ -642,6 +817,7 @@ function PuntosAcopio() {
                     onChange={handleChange}
                     disabled={saving}
                   >
+
                     <option value="activo">
                       Activo
                     </option>
@@ -649,6 +825,7 @@ function PuntosAcopio() {
                     <option value="inactivo">
                       Inactivo
                     </option>
+
                   </select>
 
                 </div>
@@ -712,7 +889,193 @@ function PuntosAcopio() {
           </div>
 
         </div>
+
       )}
+
+
+      {/* =====================================================
+          MODAL ACTIVAR / DESACTIVAR PUNTO DE ACOPIO
+      ===================================================== */}
+
+      {mostrarModalEstado &&
+        puntoEstadoSeleccionado && (
+
+          <div
+            className="admin-collection-status-modal-overlay"
+            onMouseDown={(event) => {
+
+              if (
+                event.target === event.currentTarget &&
+                !cambiandoEstado
+              ) {
+                cerrarCambioEstado()
+              }
+
+            }}
+          >
+
+            <div
+              className="admin-collection-status-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="admin-collection-status-modal-title"
+            >
+
+              <div className="admin-collection-status-modal-header">
+
+                <div>
+
+                  <p className="admin-collection-status-modal-kicker">
+                    GESTIÓN DE PUNTO DE ACOPIO
+                  </p>
+
+                  <h2 id="admin-collection-status-modal-title">
+                    {puntoEstadoSeleccionado.estado ===
+                    'activo'
+                      ? 'Desactivar punto de acopio'
+                      : 'Activar punto de acopio'}
+                  </h2>
+
+                  <p>
+                    {puntoEstadoSeleccionado.estado ===
+                    'activo'
+                      ? 'El punto dejará de estar disponible para los usuarios.'
+                      : 'El punto volverá a estar disponible para los usuarios.'}
+                  </p>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  className="admin-collection-status-modal-close"
+                  onClick={cerrarCambioEstado}
+                  disabled={cambiandoEstado}
+                  aria-label="Cerrar ventana"
+                >
+                  ×
+                </button>
+
+              </div>
+
+
+              <div className="admin-collection-status-point">
+
+                <span className="admin-collection-status-point-label">
+                  PUNTO DE ACOPIO SELECCIONADO
+                </span>
+
+                <strong>
+                  {puntoEstadoSeleccionado.nombre}
+                </strong>
+
+                <p>
+                  {puntoEstadoSeleccionado.direccion ||
+                    'Sin dirección registrada.'}
+                </p>
+
+                {(puntoEstadoSeleccionado.distrito ||
+                  puntoEstadoSeleccionado.provincia ||
+                  puntoEstadoSeleccionado.departamento) && (
+
+                  <span className="admin-collection-status-point-location">
+
+                    {[
+                      puntoEstadoSeleccionado.distrito,
+                      puntoEstadoSeleccionado.provincia,
+                      puntoEstadoSeleccionado.departamento,
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
+
+                  </span>
+
+                )}
+
+              </div>
+
+
+              <div className="admin-collection-status-current">
+
+                <span>
+                  Estado actual
+                </span>
+
+                <strong
+                  className={
+                    puntoEstadoSeleccionado.estado ===
+                    'activo'
+                      ? 'is-active'
+                      : 'is-inactive'
+                  }
+                >
+                  <span className="admin-collection-status-dot" />
+
+                  {mostrarEstado(
+                    puntoEstadoSeleccionado.estado
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div className="admin-collection-status-modal-message">
+
+                <strong>
+                  {puntoEstadoSeleccionado.estado ===
+                  'activo'
+                    ? '¿Deseas desactivar este punto de acopio?'
+                    : '¿Deseas activar este punto de acopio?'}
+                </strong>
+
+                <p>
+                  {puntoEstadoSeleccionado.estado ===
+                  'activo'
+                    ? 'Los usuarios ya no podrán utilizar este punto de acopio mientras permanezca inactivo.'
+                    : 'Los usuarios podrán volver a utilizar este punto de acopio.'}
+                </p>
+
+              </div>
+
+
+              <div className="admin-collection-status-modal-actions">
+
+                <button
+                  type="button"
+                  className="admin-collection-status-cancel-button"
+                  onClick={cerrarCambioEstado}
+                  disabled={cambiandoEstado}
+                >
+                  Cancelar
+                </button>
+
+
+                <button
+                  type="button"
+                  className={
+                    puntoEstadoSeleccionado.estado ===
+                    'activo'
+                      ? 'admin-collection-status-confirm-button admin-collection-status-confirm-danger'
+                      : 'admin-collection-status-confirm-button admin-collection-status-confirm-success'
+                  }
+                  onClick={cambiarEstado}
+                  disabled={cambiandoEstado}
+                >
+                  {cambiandoEstado
+                    ? 'Procesando...'
+                    : puntoEstadoSeleccionado.estado ===
+                      'activo'
+                      ? 'Sí, desactivar'
+                      : 'Sí, activar'}
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )}
 
     </section>
   )
