@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 
 function Reciclajes() {
+  const navigate = useNavigate()
+
   const [recyclings, setRecyclings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -29,6 +32,9 @@ function Reciclajes() {
         return
       }
 
+      /*
+        RECICLAJES DEL USUARIO
+      */
       const {
         data: recyclingData,
         error: recyclingError,
@@ -62,40 +68,46 @@ function Reciclajes() {
 
       const pointIds = [
         ...new Set(
-          recyclingData.map(
-            (recycling) => recycling.punto_acopio_id
-          )
+          recyclingData
+            .map(
+              (recycling) =>
+                recycling.punto_acopio_id
+            )
+            .filter(Boolean)
         ),
       ]
 
-      const [
-        detailsResult,
-        pointsResult,
-      ] = await Promise.all([
-        supabase
-          .from('recycling_details')
-          .select(`
-            id,
-            reciclaje_id,
-            material_id,
-            cantidad,
-            puntos_obtenidos
-          `)
-          .in(
-            'reciclaje_id',
-            recyclingIds
-          ),
+      /*
+        DETALLES + PUNTOS DE ACOPIO
+      */
+      const [detailsResult, pointsResult] =
+        await Promise.all([
+          supabase
+            .from('recycling_details')
+            .select(`
+              id,
+              reciclaje_id,
+              material_id,
+              cantidad,
+              puntos_obtenidos
+            `)
+            .in(
+              'reciclaje_id',
+              recyclingIds
+            ),
 
-        supabase
-          .from('collection_points')
-          .select(
-            'id, nombre, direccion'
-          )
-          .in(
-            'id',
-            pointIds
-          ),
-      ])
+          pointIds.length > 0
+            ? supabase
+                .from('collection_points')
+                .select(
+                  'id, nombre, direccion'
+                )
+                .in('id', pointIds)
+            : Promise.resolve({
+                data: [],
+                error: null,
+              }),
+        ])
 
       if (detailsResult.error) {
         throw detailsResult.error
@@ -108,11 +120,17 @@ function Reciclajes() {
       const details =
         detailsResult.data || []
 
+      /*
+        MATERIALES
+      */
       const materialIds = [
         ...new Set(
-          details.map(
-            (detail) => detail.material_id
-          )
+          details
+            .map(
+              (detail) =>
+                detail.material_id
+            )
+            .filter(Boolean)
         ),
       ]
 
@@ -139,9 +157,13 @@ function Reciclajes() {
         materials = materialData || []
       }
 
+      /*
+        FORMATEAR INFORMACIÓN
+      */
       const formattedRecyclings =
         recyclingData.map(
           (recycling) => {
+
             const recyclingDetails =
               details.filter(
                 (detail) =>
@@ -152,6 +174,7 @@ function Reciclajes() {
             const formattedDetails =
               recyclingDetails.map(
                 (detail) => {
+
                   const material =
                     materials.find(
                       (item) =>
@@ -185,7 +208,9 @@ function Reciclajes() {
       setRecyclings(
         formattedRecyclings
       )
+
     } catch (err) {
+
       console.error(
         'Error al cargar reciclajes:',
         err
@@ -194,10 +219,17 @@ function Reciclajes() {
       setError(
         'No se pudieron cargar tus reciclajes.'
       )
+
     } finally {
+
       setLoading(false)
+
     }
   }
+
+  /*
+    RESUMEN
+  */
 
   const totalRecyclings =
     recyclings.length
@@ -215,6 +247,7 @@ function Reciclajes() {
   const totalQuantity =
     recyclings.reduce(
       (total, recycling) => {
+
         const recyclingQuantity =
           recycling.details.reduce(
             (sum, detail) =>
@@ -230,8 +263,15 @@ function Reciclajes() {
       0
     )
 
+  /*
+    FECHA
+  */
+
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString(
+
+    return new Date(
+      date
+    ).toLocaleDateString(
       'es-PE',
       {
         day: '2-digit',
@@ -239,9 +279,15 @@ function Reciclajes() {
         year: 'numeric',
       }
     )
+
   }
 
+  /*
+    ESTADOS
+  */
+
   const getStatusLabel = (estado) => {
+
     const statuses = {
       pendiente: 'Pendiente',
       validado: 'Validado',
@@ -256,6 +302,7 @@ function Reciclajes() {
   }
 
   const getStatusClass = (estado) => {
+
     const statusClasses = {
       pendiente: 'status-pending',
       validado: 'status-validated',
@@ -269,11 +316,18 @@ function Reciclajes() {
     )
   }
 
+  /*
+    ESTADO DE CARGA
+  */
+
   if (loading) {
+
     return (
+
       <main className="user-recycling-page">
 
         <section className="user-recycling-hero">
+
           <div className="container">
 
             <span className="section-label">
@@ -286,12 +340,15 @@ function Reciclajes() {
             </h1>
 
             <p>
-              Consulta el historial de los materiales que has
-              entregado, los puntos obtenidos y el estado de cada registro.
+              Consulta el historial de los materiales
+              que has entregado, los puntos obtenidos
+              y el estado de cada registro.
             </p>
 
           </div>
+
         </section>
+
 
         <section className="user-recycling-section">
 
@@ -306,14 +363,22 @@ function Reciclajes() {
         </section>
 
       </main>
+
     )
   }
 
+  /*
+    ERROR
+  */
+
   if (error) {
+
     return (
+
       <main className="user-recycling-page">
 
         <section className="user-recycling-hero">
+
           <div className="container">
 
             <span className="section-label">
@@ -326,12 +391,15 @@ function Reciclajes() {
             </h1>
 
             <p>
-              Consulta el historial de los materiales que has
-              entregado, los puntos obtenidos y el estado de cada registro.
+              Consulta el historial de los materiales
+              que has entregado, los puntos obtenidos
+              y el estado de cada registro.
             </p>
 
           </div>
+
         </section>
+
 
         <section className="user-recycling-section">
 
@@ -346,11 +414,21 @@ function Reciclajes() {
         </section>
 
       </main>
+
     )
   }
 
+  /*
+    CONTENIDO PRINCIPAL
+  */
+
   return (
+
     <main className="user-recycling-page">
+
+      {/* =====================================================
+          HERO
+      ===================================================== */}
 
       <section className="user-recycling-hero">
 
@@ -366,17 +444,27 @@ function Reciclajes() {
           </h1>
 
           <p>
-            Consulta el historial de los materiales que has entregado,
-            los puntos obtenidos y el estado de cada registro.
+            Consulta el historial de los materiales
+            que has entregado, los puntos obtenidos
+            y el estado de cada registro.
           </p>
 
         </div>
 
       </section>
 
+
+      {/* =====================================================
+          CONTENIDO
+      ===================================================== */}
+
       <section className="user-recycling-section">
 
         <div className="container">
+
+          {/* =================================================
+              RESUMEN
+          ================================================= */}
 
           <div className="recycling-summary">
 
@@ -396,6 +484,7 @@ function Reciclajes() {
 
             </article>
 
+
             <article className="recycling-summary-card">
 
               <span>
@@ -411,6 +500,7 @@ function Reciclajes() {
               </p>
 
             </article>
+
 
             <article className="recycling-summary-card">
 
@@ -430,6 +520,11 @@ function Reciclajes() {
 
           </div>
 
+
+          {/* =================================================
+              HISTORIAL
+          ================================================= */}
+
           <div className="recycling-history">
 
             <div className="section-heading">
@@ -443,11 +538,12 @@ function Reciclajes() {
               </h2>
 
               <p>
-                Aquí puedes consultar los registros de reciclaje
-                validados por un encargado.
+                Aquí puedes consultar los registros
+                de reciclaje validados por un encargado.
               </p>
 
             </div>
+
 
             {recyclings.length === 0 ? (
 
@@ -462,9 +558,22 @@ function Reciclajes() {
                 </h3>
 
                 <p>
-                  Acude a un punto de acopio y entrega tus materiales
-                  reciclables para comenzar a acumular puntos.
+                  Acude a un punto de acopio y entrega
+                  tus materiales reciclables para comenzar
+                  a acumular puntos.
                 </p>
+
+                {/* BOTÓN A PUNTOS DE ACOPIO */}
+
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() =>
+                    navigate('/puntos-acopio')
+                  }
+                >
+                  Ver puntos de acopio
+                </button>
 
               </div>
 
@@ -493,14 +602,18 @@ function Reciclajes() {
                         )
 
                     return (
+
                       <article
                         className="recycling-history-card"
                         key={recycling.id}
                       >
 
+                        {/* ENCABEZADO */}
+
                         <div className="recycling-card-top">
 
                           <div className="recycling-card-number">
+
                             <span>
                               RECICLAJE
                             </span>
@@ -508,7 +621,9 @@ function Reciclajes() {
                             <strong>
                               #{index + 1}
                             </strong>
+
                           </div>
+
 
                           <span
                             className={`recycling-status ${getStatusClass(
@@ -521,6 +636,9 @@ function Reciclajes() {
                           </span>
 
                         </div>
+
+
+                        {/* INFORMACIÓN PRINCIPAL */}
 
                         <div className="recycling-card-main">
 
@@ -541,6 +659,7 @@ function Reciclajes() {
 
                           </div>
 
+
                           <div className="recycling-points">
 
                             <span>
@@ -559,6 +678,9 @@ function Reciclajes() {
 
                         </div>
 
+
+                        {/* DETALLES */}
+
                         <div className="recycling-card-details">
 
                           <div className="recycling-detail-item">
@@ -573,6 +695,9 @@ function Reciclajes() {
 
                           </div>
 
+
+                          {/* PUNTO DE ACOPIO */}
+
                           <div className="recycling-detail-item">
 
                             <span>
@@ -584,7 +709,16 @@ function Reciclajes() {
                                 'No disponible'}
                             </strong>
 
+                            {recycling.point?.direccion && (
+
+                              <small>
+                                {recycling.point.direccion}
+                              </small>
+
+                            )}
+
                           </div>
+
 
                           <div className="recycling-detail-item">
 
@@ -601,6 +735,9 @@ function Reciclajes() {
                           </div>
 
                         </div>
+
+
+                        {/* OBSERVACIONES */}
 
                         {recycling.observaciones && (
 
@@ -619,7 +756,9 @@ function Reciclajes() {
                         )}
 
                       </article>
+
                     )
+
                   }
                 )}
 
@@ -628,6 +767,50 @@ function Reciclajes() {
             )}
 
           </div>
+
+
+          {/* =================================================
+              ACCESO A PUNTOS DE ACOPIO
+          ================================================= */}
+
+          <section className="recycling-collection-points">
+
+            <div>
+
+              <span className="section-label">
+                PUNTOS DE ACOPIO
+              </span>
+
+              <h2>
+                ¿Dónde puedes entregar
+                <span> tus materiales?</span>
+              </h2>
+
+              <p>
+                Consulta los puntos de acopio disponibles
+                y encuentra el lugar más conveniente para
+                realizar tu próxima entrega.
+              </p>
+
+            </div>
+
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() =>
+                navigate('/puntos-acopio')
+              }
+            >
+              Ver puntos de acopio
+            </button>
+
+          </section>
+
+
+          {/* =================================================
+              INFORMACIÓN
+          ================================================= */}
 
           <div className="recycling-info">
 
@@ -643,9 +826,10 @@ function Reciclajes() {
               </h2>
 
               <p>
-                Cada registro es validado por un encargado de EcoCanje.
-                Una vez confirmado, los puntos correspondientes se
-                agregan automáticamente a tu cuenta.
+                Cada registro es validado por un encargado
+                de EcoCanje. Una vez confirmado, los puntos
+                correspondientes se agregan automáticamente
+                a tu cuenta.
               </p>
 
             </div>
@@ -657,6 +841,7 @@ function Reciclajes() {
       </section>
 
     </main>
+
   )
 }
 

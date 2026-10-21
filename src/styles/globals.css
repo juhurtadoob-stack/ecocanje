@@ -2820,7 +2820,7 @@ ol {
 .user-navbar-links a.active {
   color: #ffffff;
   background: var(--primary);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* Evita la antigua línea inferior */
@@ -26392,5 +26392,851 @@ ol {
   .admin-role-form-group .password-field input {
     padding-right: 48px;
   }
+}
+/* =========================================================
+   NAVBAR USUARIO - PUNTOS DE ACOPIO Y NOTIFICACIONES
+========================================================= */
 
+/* Contenedor del menú Reciclajes */
+.user-navbar-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Enlace principal de Reciclajes */
+.user-navbar-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   SUBMENÚ DE RECICLAJES
+========================================================= */
+
+.user-navbar-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+
+/* =========================================================
+   BOTÓN RECICLAJES
+========================================================= */
+
+.user-navbar-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 52px;
+  padding: 0 14px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: transparent;
+
+  color: #64748b;
+
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+/* BOTÓN AL PASAR EL MOUSE */
+
+.user-navbar-dropdown-trigger:hover {
+  background: #eef8f1;
+  color: #16813f;
+}
+
+
+/* BOTÓN CUANDO EL MENÚ ESTÁ ABIERTO */
+
+.user-navbar-dropdown-trigger-active {
+  background: #16813f;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   SUBMENÚ
+========================================================= */
+
+.user-navbar-dropdown-menu {
+  position: absolute;
+
+  top: calc(100% + 8px);
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  min-width: 210px;
+
+  padding: 8px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.12);
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  z-index: 9999;
+}
+
+
+/* =========================================================
+   MENÚ ABIERTO
+========================================================= */
+
+.user-navbar-dropdown-menu-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+
+/* =========================================================
+   OPCIONES DEL SUBMENÚ
+========================================================= */
+
+.user-navbar-dropdown-menu a {
+  display: flex;
+
+  align-items: center;
+
+  width: 100%;
+
+  min-height: 42px;
+
+  box-sizing: border-box;
+
+  padding: 10px 13px;
+
+  border-radius: 8px;
+
+  color: #64748b;
+
+  background: transparent;
+
+  font-family: inherit;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+
+/* =========================================================
+   HOVER DE LAS OPCIONES
+========================================================= */
+
+.user-navbar-dropdown-menu a:hover {
+  background: #eef8f1;
+  color: #16813f;
+}
+
+
+/* =========================================================
+   OPCIÓN ACTIVA
+========================================================= */
+
+.user-navbar-dropdown-menu a.active {
+  background: #eef8f1;
+  color: #16813f;
+
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   EVITAR QUE EL NAVBAR CORTE EL MENÚ
+========================================================= */
+
+.user-navbar,
+.user-navbar-content,
+.user-navbar-links {
+  overflow: visible;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .user-navbar-dropdown-menu {
+    left: 0;
+    transform: none;
+  }
+
+}
+
+
+/* =========================================================
+   NOTIFICACIONES
+========================================================= */
+
+.user-notifications-link {
+  position: relative;
+
+  width: 42px;
+  height: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 4px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  color: #64748b;
+  text-decoration: none;
+
+  background: #ffffff;
+
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+/* Hover campanita */
+.user-notifications-link:hover {
+  color: #16813f;
+  border-color: #cce8d5;
+  background: #f3faf5;
+}
+
+/* Icono de campana */
+.user-notifications-icon {
+  width: 21px;
+  height: 21px;
+
+  display: block;
+
+  color: currentColor;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   CONTADOR DE NOTIFICACIONES
+========================================================= */
+
+.user-notifications-badge {
+  position: absolute;
+
+  top: -5px;
+  right: -5px;
+
+  min-width: 20px;
+  height: 20px;
+
+  padding: 0 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: #16813f;
+  color: #ffffff;
+
+  border: 2px solid #ffffff;
+
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CUENTA DEL USUARIO
+========================================================= */
+
+.user-navbar-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+/* =========================================================
+   EVITAR QUE EL NAVBAR SE ROMPA POR EL SUBMENÚ
+========================================================= */
+
+.user-navbar-content {
+  position: relative;
+}
+
+.user-navbar-links {
+  display: flex;
+  align-items: center;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .user-navbar-links {
+    gap: 14px;
+  }
+
+  .user-navbar-account {
+    gap: 8px;
+  }
+
+  .user-notifications-link {
+    width: 40px;
+    height: 40px;
+  }
+
+}
+
+
+@media (max-width: 950px) {
+
+  .user-navbar-content {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  .user-navbar-links {
+    order: 3;
+    width: 100%;
+
+    justify-content: center;
+
+    padding-bottom: 8px;
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .user-navbar-links {
+    overflow-x: auto;
+    justify-content: flex-start;
+
+    padding-bottom: 10px;
+  }
+
+  .user-navbar-links::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .user-navbar-dropdown-menu {
+    position: fixed;
+
+    top: auto;
+    left: auto;
+
+    transform: translateY(5px);
+
+    min-width: 180px;
+  }
+
+  .user-navbar-dropdown:hover .user-navbar-dropdown-menu {
+    transform: translateY(0);
+  }
+
+}
+/* =========================================================
+   PUNTOS DE ACOPIO - PANEL DE USUARIO
+   ========================================================= */
+
+.user-collection-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #f8faf9;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.user-collection-hero {
+  position: relative;
+  padding: 72px 0 76px;
+  background: linear-gradient(
+    135deg,
+    #0f6b3a 0%,
+    #16813f 55%,
+    #1c9950 100%
+  );
+  overflow: hidden;
+}
+
+.user-collection-hero::before {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  right: -150px;
+  top: -190px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.user-collection-hero::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  left: -100px;
+  bottom: -160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.user-collection-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.user-collection-hero .section-label {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.user-collection-hero h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+}
+
+.user-collection-hero h1 span {
+  color: #b8efc9;
+}
+
+.user-collection-hero p {
+  max-width: 680px;
+  margin: 22px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   SECCIÓN PRINCIPAL
+   ========================================================= */
+
+.user-collection-section {
+  padding: 72px 0 82px;
+  background: #f8faf9;
+}
+
+.user-collection-heading {
+  max-width: 760px;
+  margin-bottom: 38px;
+}
+
+.user-collection-heading > span {
+  display: block;
+  margin-bottom: 10px;
+  color: #16813f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.user-collection-heading h2 {
+  margin: 0;
+  color: #17251d;
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.user-collection-heading p {
+  margin: 15px 0 0;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.user-collection-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+
+/* =========================================================
+   TARJETA
+   ========================================================= */
+
+.user-collection-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 30px;
+  background: #ffffff;
+  border: 1px solid #e3ebe6;
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.user-collection-card:hover {
+  transform: translateY(-4px);
+  border-color: #c8dfd0;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.09);
+}
+
+
+/* =========================================================
+   NÚMERO
+   ========================================================= */
+
+.user-collection-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background: #edf8f0;
+  color: #16813f;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+
+/* =========================================================
+   TÍTULO
+   ========================================================= */
+
+.user-collection-card h3 {
+  margin: 0 0 24px;
+  color: #17251d;
+  font-size: 21px;
+  line-height: 1.3;
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   INFORMACIÓN
+   ========================================================= */
+
+.user-collection-info {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  flex: 1;
+}
+
+.user-collection-info > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #edf1ee;
+}
+
+.user-collection-info > div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.user-collection-info strong {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.user-collection-info span {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+
+/* =========================================================
+   BOTÓN
+   ========================================================= */
+
+.user-collection-button {
+  width: 100%;
+  margin-top: 26px;
+  justify-content: center;
+  text-align: center;
+}
+
+
+/* =========================================================
+   MENSAJES
+   ========================================================= */
+
+.user-collection-message {
+  padding: 28px;
+  border: 1px solid #e3ebe6;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #64748b;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.user-collection-message-error {
+  border-color: #f1caca;
+  background: #fff8f8;
+  color: #b42318;
+}
+
+
+/* =========================================================
+   SECCIÓN DE RECOMENDACIONES
+   ========================================================= */
+
+.user-collection-tips-section {
+  padding: 78px 0;
+  background: #ffffff;
+  border-top: 1px solid #e8eee9;
+}
+
+.user-collection-tips-content {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 70px;
+  align-items: start;
+}
+
+.user-collection-tips-content .section-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #16813f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.user-collection-tips-content h2 {
+  margin: 0;
+  color: #17251d;
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.user-collection-tips-content h2 span {
+  color: #16813f;
+}
+
+.user-collection-tips-content > .container p,
+.user-collection-tips-content > div:first-child p {
+  max-width: 520px;
+  margin: 18px 0 0;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   CONSEJOS
+   ========================================================= */
+
+.user-collection-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid #e3ebe6;
+}
+
+.user-collection-tips > div {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+  padding: 23px 0;
+  border-bottom: 1px solid #e3ebe6;
+}
+
+.user-collection-tips strong {
+  color: #16813f;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.user-collection-tips p {
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 1024px) {
+
+  .user-collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .user-collection-tips-content {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MÓVIL
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .user-collection-hero {
+    padding: 54px 0 58px;
+  }
+
+  .user-collection-hero h1 {
+    font-size: 38px;
+  }
+
+  .user-collection-hero p {
+    font-size: 15px;
+  }
+
+  .user-collection-section {
+    padding: 54px 0 62px;
+  }
+
+  .user-collection-heading {
+    margin-bottom: 28px;
+  }
+
+  .user-collection-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .user-collection-card {
+    padding: 24px;
+  }
+
+  .user-collection-tips-section {
+    padding: 58px 0;
+  }
+
+  .user-collection-tips-content h2 {
+    font-size: 32px;
+  }
+
+  .user-collection-tips > div {
+    grid-template-columns: 45px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+}
+
+
+/* =========================================================
+   MÓVIL PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .user-collection-hero {
+    padding: 46px 0 50px;
+  }
+
+  .user-collection-hero h1 {
+    font-size: 34px;
+  }
+
+  .user-collection-card {
+    padding: 21px;
+    border-radius: 15px;
+  }
+
+  .user-collection-card h3 {
+    font-size: 19px;
+  }
+
+  .user-collection-info {
+    gap: 14px;
+  }
+
+  .user-collection-button {
+    margin-top: 22px;
+  }
+
+}
+.user-navbar-dropdown-trigger,
+.user-navbar-dropdown-trigger-active {
+  font-weight: 400;
 }

@@ -7,23 +7,30 @@ import AdminLayout from './layouts/AdminLayout'
 
 import ProtectedRoute from './routes/ProtectedRoute'
 
-// Páginas públicas
+// =====================================================
+// PÁGINAS PÚBLICAS
+// =====================================================
+
 import Home from './pages/public/Home'
 import Register from './pages/public/Register'
 import Login from './pages/public/Login'
 import RecuperarPassword from './pages/public/RecuperarPassword'
 import RestablecerPassword from './pages/public/RestablecerPassword'
 import ComoFunciona from './pages/public/ComoFunciona'
-import PuntosAcopio from './pages/public/PuntosAcopio'
+import PublicPuntosAcopio from './pages/public/PuntosAcopio'
 import EcoTienda from './pages/public/EcoTienda'
 import Producto from './pages/public/Producto'
 import Beneficios from './pages/public/Beneficios'
 
-// Páginas de usuario
+// =====================================================
+// PÁGINAS DE USUARIO
+// =====================================================
+
 import UserDashboard from './pages/user/Dashboard'
 import UserQR from './pages/user/QR'
 import UserPuntos from './pages/user/Puntos'
 import UserReciclajes from './pages/user/Reciclajes'
+import UserPuntosAcopio from './pages/user/PuntosAcopio'
 import UserBeneficios from './pages/user/Beneficios'
 import Cupones from './pages/user/Cupones'
 import Tienda from './pages/user/Tienda'
@@ -33,13 +40,19 @@ import Perfil from './pages/user/Perfil'
 import MisPedidos from './pages/user/MisPedidos'
 import Notificaciones from './pages/user/Notificaciones'
 
-// Páginas de encargado
+// =====================================================
+// PÁGINAS DE ENCARGADO
+// =====================================================
+
 import AttendantDashboard from './pages/attendant/Dashboard'
 import Escanear from './pages/attendant/Escanear'
 import RegistrarReciclaje from './pages/attendant/RegistrarReciclaje'
 import AttendantReciclajes from './pages/attendant/Reciclajes'
 
-// Páginas de administrador
+// =====================================================
+// PÁGINAS DE ADMINISTRADOR
+// =====================================================
+
 import AdminDashboard from './pages/admin/Dashboard'
 import Usuarios from './pages/admin/Usuarios'
 import Productos from './pages/admin/Productos'
@@ -50,14 +63,16 @@ import AdminPuntosAcopio from './pages/admin/PuntosAcopio'
 import Pedidos from './pages/admin/Pedidos'
 import Reciclajes from './pages/admin/Reciclajes'
 
+
 function App() {
   return (
     <BrowserRouter>
+
       <Routes>
 
-        {/* ========================================
+        {/* =====================================================
             PÁGINAS PÚBLICAS
-        ======================================== */}
+        ===================================================== */}
 
         <Route element={<PublicLayout />}>
 
@@ -91,9 +106,11 @@ function App() {
             element={<ComoFunciona />}
           />
 
+          {/* PÁGINA PÚBLICA DE PUNTOS DE ACOPIO */}
+
           <Route
             path="/puntos-acopio"
-            element={<PuntosAcopio />}
+            element={<PublicPuntosAcopio />}
           />
 
           <Route
@@ -114,9 +131,11 @@ function App() {
         </Route>
 
 
-        {/* ========================================
+        {/* =====================================================
             PANEL DEL USUARIO
-        ======================================== */}
+        ===================================================== */}
+
+        {/* INICIO */}
 
         <Route
           path="/usuario"
@@ -129,6 +148,9 @@ function App() {
           }
         />
 
+
+        {/* MI QR */}
+
         <Route
           path="/usuario/qr"
           element={
@@ -139,6 +161,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
+        {/* MIS PUNTOS */}
 
         <Route
           path="/usuario/puntos"
@@ -151,6 +176,9 @@ function App() {
           }
         />
 
+
+        {/* MIS RECICLAJES */}
+
         <Route
           path="/usuario/reciclajes"
           element={
@@ -161,6 +189,29 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
+        {/* =====================================================
+            PUNTOS DE ACOPIO DEL USUARIO
+
+            ESTA ES LA RUTA QUE DEBE USAR EL MENÚ DEL USUARIO:
+
+            /usuario/puntos-acopio
+        ===================================================== */}
+
+        <Route
+          path="/usuario/puntos-acopio"
+          element={
+            <ProtectedRoute allowedRoles={['usuario']}>
+              <UserLayout>
+                <UserPuntosAcopio />
+              </UserLayout>
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* BENEFICIOS */}
 
         <Route
           path="/usuario/beneficios"
@@ -173,6 +224,9 @@ function App() {
           }
         />
 
+
+        {/* CUPONES */}
+
         <Route
           path="/usuario/cupones"
           element={
@@ -183,6 +237,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
+        {/* TIENDA */}
 
         <Route
           path="/usuario/tienda"
@@ -195,6 +252,9 @@ function App() {
           }
         />
 
+
+        {/* CARRITO */}
+
         <Route
           path="/usuario/carrito"
           element={
@@ -205,6 +265,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
+        {/* CHECKOUT */}
 
         <Route
           path="/usuario/checkout"
@@ -217,6 +280,9 @@ function App() {
           }
         />
 
+
+        {/* PERFIL */}
+
         <Route
           path="/usuario/perfil"
           element={
@@ -227,6 +293,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
+        {/* PEDIDOS */}
 
         <Route
           path="/usuario/pedidos"
@@ -239,9 +308,8 @@ function App() {
           }
         />
 
-        {/* ========================================
-            NOTIFICACIONES
-        ======================================== */}
+
+        {/* NOTIFICACIONES */}
 
         <Route
           path="/usuario/notificaciones"
@@ -255,9 +323,9 @@ function App() {
         />
 
 
-        {/* ========================================
+        {/* =====================================================
             PANEL DEL ENCARGADO
-        ======================================== */}
+        ===================================================== */}
 
         <Route
           path="/encargado"
@@ -270,6 +338,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/encargado/escanear"
           element={
@@ -281,6 +350,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/encargado/registrar-reciclaje"
           element={
@@ -291,6 +361,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
 
         <Route
           path="/encargado/reciclajes"
@@ -304,9 +375,9 @@ function App() {
         />
 
 
-        {/* ========================================
+        {/* =====================================================
             PANEL DEL ADMINISTRADOR
-        ======================================== */}
+        ===================================================== */}
 
         <Route
           path="/admin"
@@ -319,6 +390,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/admin/usuarios"
           element={
@@ -329,6 +401,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
 
         <Route
           path="/admin/productos"
@@ -341,6 +414,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/admin/categorias"
           element={
@@ -351,6 +425,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
 
         <Route
           path="/admin/beneficios"
@@ -363,6 +438,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/admin/materiales"
           element={
@@ -373,6 +449,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
 
         <Route
           path="/admin/puntos-acopio"
@@ -385,6 +462,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/admin/pedidos"
           element={
@@ -395,6 +473,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
 
         <Route
           path="/admin/reciclajes"
@@ -408,6 +487,7 @@ function App() {
         />
 
       </Routes>
+
     </BrowserRouter>
   )
 }
