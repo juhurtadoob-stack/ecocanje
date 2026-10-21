@@ -14,7 +14,13 @@ function Register() {
     confirmPassword: '',
   })
 
-  const [aceptaTerminos, setAceptaTerminos] = useState(false)
+  const [mostrarPassword, setMostrarPassword] = useState(false)
+  const [mostrarConfirmPassword, setMostrarConfirmPassword] =
+    useState(false)
+
+  const [aceptaTerminos, setAceptaTerminos] =
+    useState(false)
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -113,9 +119,13 @@ function Register() {
 
       setAceptaTerminos(false)
 
+      setMostrarPassword(false)
+      setMostrarConfirmPassword(false)
+
       setTimeout(() => {
         navigate('/login')
       }, 3000)
+
     } catch (error) {
       console.error(
         'Error al crear la cuenta:',
@@ -125,6 +135,7 @@ function Register() {
       setError(
         'Ocurrió un error al crear la cuenta.'
       )
+
     } finally {
       setLoading(false)
     }
@@ -139,6 +150,7 @@ function Register() {
         }
       }}
     >
+
       <div className="register-modal">
 
         <button
@@ -187,6 +199,7 @@ function Register() {
           <div className="form-row">
 
             <div className="form-group">
+
               <label htmlFor="nombres">
                 Nombres
               </label>
@@ -199,9 +212,11 @@ function Register() {
                 onChange={handleChange}
                 autoComplete="given-name"
               />
+
             </div>
 
             <div className="form-group">
+
               <label htmlFor="apellidos">
                 Apellidos
               </label>
@@ -214,11 +229,13 @@ function Register() {
                 onChange={handleChange}
                 autoComplete="family-name"
               />
+
             </div>
 
           </div>
 
           <div className="form-group">
+
             <label htmlFor="email">
               Correo electrónico
             </label>
@@ -231,9 +248,11 @@ function Register() {
               onChange={handleChange}
               autoComplete="email"
             />
+
           </div>
 
           <div className="form-group">
+
             <label htmlFor="telefono">
               Teléfono
             </label>
@@ -246,38 +265,154 @@ function Register() {
               onChange={handleChange}
               autoComplete="tel"
             />
+
           </div>
 
           <div className="form-row">
 
+            {/* CONTRASEÑA */}
+
             <div className="form-group">
+
               <label htmlFor="password">
                 Contraseña
               </label>
 
-              <input
-                id="password"
-                type="password"
-                placeholder="Crea una contraseña"
-                value={formData.password}
-                onChange={handleChange}
-                autoComplete="new-password"
-              />
+              <div className="password-field">
+
+                <input
+                  id="password"
+                  type={
+                    mostrarPassword
+                      ? 'text'
+                      : 'password'
+                  }
+                  placeholder="Crea una contraseña"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                />
+
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() =>
+                    setMostrarPassword(
+                      !mostrarPassword
+                    )
+                  }
+                  aria-label={
+                    mostrarPassword
+                      ? 'Ocultar contraseña'
+                      : 'Mostrar contraseña'
+                  }
+                  title={
+                    mostrarPassword
+                      ? 'Ocultar contraseña'
+                      : 'Mostrar contraseña'
+                  }
+                >
+
+                  {mostrarPassword ? (
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M3 3l18 18" />
+                      <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3.1 3.8" />
+                      <path d="M6.1 6.8C3.5 8.5 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
+                    </svg>
+                  )}
+
+                </button>
+
+              </div>
+
             </div>
 
+
+            {/* CONFIRMAR CONTRASEÑA */}
+
             <div className="form-group">
+
               <label htmlFor="confirmPassword">
                 Confirmar contraseña
               </label>
 
-              <input
-                id="confirmPassword"
-                type="password"
-                placeholder="Repite tu contraseña"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                autoComplete="new-password"
-              />
+              <div className="password-field">
+
+                <input
+                  id="confirmPassword"
+                  type={
+                    mostrarConfirmPassword
+                      ? 'text'
+                      : 'password'
+                  }
+                  placeholder="Repite tu contraseña"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                />
+
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() =>
+                    setMostrarConfirmPassword(
+                      !mostrarConfirmPassword
+                    )
+                  }
+                  aria-label={
+                    mostrarConfirmPassword
+                      ? 'Ocultar contraseña'
+                      : 'Mostrar contraseña'
+                  }
+                  title={
+                    mostrarConfirmPassword
+                      ? 'Ocultar contraseña'
+                      : 'Mostrar contraseña'
+                  }
+                >
+
+                  {mostrarConfirmPassword ? (
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M3 3l18 18" />
+                      <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3.1 3.8" />
+                      <path d="M6.1 6.8C3.5 8.5 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
+                    </svg>
+                  )}
+
+                </button>
+
+              </div>
+
             </div>
 
           </div>
@@ -311,16 +446,19 @@ function Register() {
           </button>
 
           <p className="register-login-link">
+
             ¿Ya tienes una cuenta?{' '}
 
             <NavLink to="/login">
               Inicia sesión
             </NavLink>
+
           </p>
 
         </form>
 
       </div>
+
     </div>
   )
 }

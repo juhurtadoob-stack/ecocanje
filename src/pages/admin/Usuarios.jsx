@@ -6,18 +6,24 @@ function Usuarios() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Búsqueda en tiempo real
   const [busqueda, setBusqueda] = useState('')
 
-  // Administrador actualmente autenticado
   const [adminActualId, setAdminActualId] = useState(null)
-  const [esAdminPrincipal, setEsAdminPrincipal] = useState(false)
+  const [esAdminPrincipal, setEsAdminPrincipal] =
+    useState(false)
 
-  // Modal de cambio de rol
-  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null)
+  const [usuarioSeleccionado, setUsuarioSeleccionado] =
+    useState(null)
+
   const [nuevoRol, setNuevoRol] = useState('')
   const [passwordAdmin, setPasswordAdmin] = useState('')
-  const [cambiandoRol, setCambiandoRol] = useState(false)
+
+  const [mostrarPasswordAdmin, setMostrarPasswordAdmin] =
+    useState(false)
+
+  const [cambiandoRol, setCambiandoRol] =
+    useState(false)
+
   const [errorRol, setErrorRol] = useState('')
   const [exitoRol, setExitoRol] = useState('')
 
@@ -30,25 +36,22 @@ function Usuarios() {
     setError('')
 
     try {
-      /*
-        Identificar al usuario actualmente autenticado
-      */
       const {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser()
 
       if (userError || !user) {
-        setError('No se pudo identificar la cuenta actual.')
+        setError(
+          'No se pudo identificar la cuenta actual.'
+        )
+
         setLoading(false)
         return
       }
 
       setAdminActualId(user.id)
 
-      /*
-        Obtener usuarios mediante la función segura
-      */
       const {
         data,
         error: usuariosError,
@@ -69,10 +72,6 @@ function Usuarios() {
 
       setUsuarios(usuariosData)
 
-      /*
-        Buscar al administrador actualmente autenticado
-        y comprobar si es el administrador principal.
-      */
       const usuarioActual = usuariosData.find(
         (usuario) => usuario.id === user.id
       )
@@ -94,6 +93,7 @@ function Usuarios() {
       setError(
         'Ocurrió un error al cargar los usuarios.'
       )
+
     } finally {
       setLoading(false)
     }
@@ -104,11 +104,14 @@ function Usuarios() {
       return '-'
     }
 
-    return new Date(fecha).toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })
+    return new Date(fecha).toLocaleDateString(
+      'es-PE',
+      {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }
+    )
   }
 
   const mostrarRol = (rol) => {
@@ -121,12 +124,6 @@ function Usuarios() {
     return roles[rol] || rol
   }
 
-  /*
-    BÚSQUEDA EN TIEMPO REAL
-
-    La tabla se actualiza automáticamente
-    mientras el administrador escribe.
-  */
   const usuariosFiltrados = useMemo(() => {
     const texto = busqueda.trim().toLowerCase()
 
@@ -151,19 +148,11 @@ function Usuarios() {
     })
   }, [usuarios, busqueda])
 
-  /*
-    Abrir modal solamente si el administrador actual
-    es el administrador principal.
-  */
   const abrirCambiarRol = (usuario) => {
     if (!esAdminPrincipal) {
       return
     }
 
-    /*
-      El administrador principal tampoco puede
-      cambiar su propio rol.
-    */
     if (usuario.id === adminActualId) {
       return
     }
@@ -171,6 +160,7 @@ function Usuarios() {
     setUsuarioSeleccionado(usuario)
     setNuevoRol(usuario.rol)
     setPasswordAdmin('')
+    setMostrarPasswordAdmin(false)
     setErrorRol('')
     setExitoRol('')
   }
@@ -183,6 +173,7 @@ function Usuarios() {
     setUsuarioSeleccionado(null)
     setNuevoRol('')
     setPasswordAdmin('')
+    setMostrarPasswordAdmin(false)
     setErrorRol('')
     setExitoRol('')
   }
@@ -193,10 +184,6 @@ function Usuarios() {
     setErrorRol('')
     setExitoRol('')
 
-    /*
-      Comprobación adicional en frontend.
-      La protección real también está en Supabase.
-    */
     if (!esAdminPrincipal) {
       setErrorRol(
         'Solo el administrador principal puede cambiar roles.'
@@ -242,9 +229,6 @@ function Usuarios() {
     try {
       setCambiandoRol(true)
 
-      /*
-        Obtener la cuenta actualmente autenticada.
-      */
       const {
         data: {
           user: adminUser,
@@ -266,10 +250,6 @@ function Usuarios() {
         return
       }
 
-      /*
-        Verificar nuevamente la contraseña
-        del administrador principal.
-      */
       const {
         error: passwordError,
       } = await supabase.auth.signInWithPassword({
@@ -284,9 +264,6 @@ function Usuarios() {
         return
       }
 
-      /*
-        Ejecutar la función segura de Supabase.
-      */
       const {
         error: cambioError,
       } = await supabase.rpc(
@@ -317,15 +294,8 @@ function Usuarios() {
         } fue actualizado correctamente.`
       )
 
-      /*
-        Actualizar la tabla.
-      */
       await cargarDatos()
 
-      /*
-        Cerrar el modal después de mostrar
-        el mensaje de éxito.
-      */
       setTimeout(() => {
         cerrarCambiarRol()
       }, 900)
@@ -339,6 +309,7 @@ function Usuarios() {
       setErrorRol(
         'Ocurrió un error al intentar cambiar el rol.'
       )
+
     } finally {
       setCambiandoRol(false)
     }
@@ -346,10 +317,6 @@ function Usuarios() {
 
   return (
     <main className="admin-users-page">
-
-      {/* =====================================================
-          HERO
-      ===================================================== */}
 
       <section className="admin-users-hero">
 
@@ -372,10 +339,6 @@ function Usuarios() {
       </section>
 
 
-      {/* =====================================================
-          CONTENIDO
-      ===================================================== */}
-
       <section className="admin-users-section">
 
         <div className="admin-users-header">
@@ -396,7 +359,6 @@ function Usuarios() {
 
           </div>
 
-
           <div className="admin-users-count">
 
             <span>
@@ -415,10 +377,6 @@ function Usuarios() {
 
         </div>
 
-
-        {/* =====================================================
-            BARRA DE BÚSQUEDA EN TIEMPO REAL
-        ===================================================== */}
 
         {!loading && !error && (
 
@@ -443,7 +401,6 @@ function Usuarios() {
 
             </div>
 
-
             <div className="admin-users-search-results">
 
               <span>
@@ -460,10 +417,6 @@ function Usuarios() {
 
         )}
 
-
-        {/* =====================================================
-            CARGANDO
-        ===================================================== */}
 
         {loading && (
 
@@ -482,10 +435,6 @@ function Usuarios() {
         )}
 
 
-        {/* =====================================================
-            ERROR
-        ===================================================== */}
-
         {!loading && error && (
 
           <div className="admin-users-message admin-users-message-error">
@@ -502,10 +451,6 @@ function Usuarios() {
 
         )}
 
-
-        {/* =====================================================
-            SIN USUARIOS
-        ===================================================== */}
 
         {!loading &&
           !error &&
@@ -526,10 +471,6 @@ function Usuarios() {
         )}
 
 
-        {/* =====================================================
-            SIN RESULTADOS
-        ===================================================== */}
-
         {!loading &&
           !error &&
           usuarios.length > 0 &&
@@ -549,10 +490,6 @@ function Usuarios() {
 
         )}
 
-
-        {/* =====================================================
-            TABLA
-        ===================================================== */}
 
         {!loading &&
           !error &&
@@ -602,7 +539,6 @@ function Usuarios() {
 
                 </thead>
 
-
                 <tbody>
 
                   {usuariosFiltrados.map((usuario) => {
@@ -616,8 +552,6 @@ function Usuarios() {
                     return (
 
                       <tr key={usuario.id}>
-
-                        {/* USUARIO */}
 
                         <td>
 
@@ -635,15 +569,9 @@ function Usuarios() {
 
                         </td>
 
-
-                        {/* CORREO */}
-
                         <td>
                           {usuario.email}
                         </td>
-
-
-                        {/* ROL */}
 
                         <td>
 
@@ -655,9 +583,6 @@ function Usuarios() {
 
                         </td>
 
-
-                        {/* PUNTOS DISPONIBLES */}
-
                         <td>
 
                           <strong>
@@ -666,15 +591,9 @@ function Usuarios() {
 
                         </td>
 
-
-                        {/* PUNTOS ACUMULADOS */}
-
                         <td>
                           {usuario.puntos_acumulados}
                         </td>
-
-
-                        {/* NIVEL */}
 
                         <td>
 
@@ -684,21 +603,16 @@ function Usuarios() {
 
                         </td>
 
-
-                        {/* FECHA */}
-
                         <td>
                           {formatearFecha(
                             usuario.created_at
                           )}
                         </td>
 
-
-                        {/* ACCIÓN */}
-
                         <td>
 
-                          {esUsuarioActual && esAdminPrincipalUsuario ? (
+                          {esUsuarioActual &&
+                          esAdminPrincipalUsuario ? (
 
                             <span className="admin-user-action-disabled">
                               Administrador principal
@@ -729,6 +643,7 @@ function Usuarios() {
                       </tr>
 
                     )
+
                   })}
 
                 </tbody>
@@ -742,9 +657,7 @@ function Usuarios() {
       </section>
 
 
-      {/* =====================================================
-          MODAL CAMBIAR ROL
-      ===================================================== */}
+      {/* MODAL CAMBIAR ROL */}
 
       {usuarioSeleccionado && (
 
@@ -787,7 +700,6 @@ function Usuarios() {
 
               </div>
 
-
               <button
                 type="button"
                 className="admin-role-modal-close"
@@ -800,8 +712,6 @@ function Usuarios() {
 
             </div>
 
-
-            {/* USUARIO SELECCIONADO */}
 
             <div className="admin-role-user">
 
@@ -840,8 +750,6 @@ function Usuarios() {
               onSubmit={cambiarRol}
             >
 
-              {/* NUEVO ROL */}
-
               <div className="admin-role-form-group">
 
                 <label htmlFor="nuevo-rol">
@@ -874,7 +782,7 @@ function Usuarios() {
               </div>
 
 
-              {/* CONTRASEÑA */}
+              {/* CONTRASEÑA DEL ADMINISTRADOR */}
 
               <div className="admin-role-form-group">
 
@@ -882,19 +790,73 @@ function Usuarios() {
                   Contraseña del administrador
                 </label>
 
-                <input
-                  id="admin-password"
-                  type="password"
-                  value={passwordAdmin}
-                  onChange={(event) =>
-                    setPasswordAdmin(
-                      event.target.value
-                    )
-                  }
-                  placeholder="Ingresa tu contraseña"
-                  autoComplete="current-password"
-                  disabled={cambiandoRol}
-                />
+                <div className="password-field">
+
+                  <input
+                    id="admin-password"
+                    type={
+                      mostrarPasswordAdmin
+                        ? 'text'
+                        : 'password'
+                    }
+                    value={passwordAdmin}
+                    onChange={(event) =>
+                      setPasswordAdmin(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Ingresa tu contraseña"
+                    autoComplete="current-password"
+                    disabled={cambiandoRol}
+                  />
+
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() =>
+                      setMostrarPasswordAdmin(
+                        !mostrarPasswordAdmin
+                      )
+                    }
+                    disabled={cambiandoRol}
+                    aria-label={
+                      mostrarPasswordAdmin
+                        ? 'Ocultar contraseña'
+                        : 'Mostrar contraseña'
+                    }
+                    title={
+                      mostrarPasswordAdmin
+                        ? 'Ocultar contraseña'
+                        : 'Mostrar contraseña'
+                    }
+                  >
+
+                    {mostrarPasswordAdmin ? (
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="3"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path d="M3 3l18 18" />
+                        <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3.1 3.8" />
+                        <path d="M6.1 6.8C3.5 6.8 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
+                      </svg>
+                    )}
+
+                  </button>
+
+                </div>
 
                 <small>
                   Por seguridad, confirma tu contraseña
@@ -903,8 +865,6 @@ function Usuarios() {
 
               </div>
 
-
-              {/* ERROR */}
 
               {errorRol && (
 
@@ -915,8 +875,6 @@ function Usuarios() {
               )}
 
 
-              {/* ÉXITO */}
-
               {exitoRol && (
 
                 <div className="form-message form-message-success">
@@ -925,8 +883,6 @@ function Usuarios() {
 
               )}
 
-
-              {/* BOTONES */}
 
               <div className="admin-role-modal-actions">
 

@@ -6,7 +6,16 @@ function RestablecerPassword() {
   const navigate = useNavigate()
 
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] =
+    useState('')
+
+  const [mostrarPassword, setMostrarPassword] =
+    useState(false)
+
+  const [
+    mostrarConfirmPassword,
+    setMostrarConfirmPassword,
+  ] = useState(false)
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -39,6 +48,7 @@ function RestablecerPassword() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (event, session) => {
+
         if (
           event === 'PASSWORD_RECOVERY' &&
           session
@@ -46,6 +56,7 @@ function RestablecerPassword() {
           setError('')
           setLoading(false)
         }
+
       }
     )
 
@@ -119,6 +130,7 @@ function RestablecerPassword() {
       setError(
         'Ocurrió un error al restablecer la contraseña.'
       )
+
     } finally {
       setSaving(false)
     }
@@ -127,6 +139,7 @@ function RestablecerPassword() {
   if (loading) {
     return (
       <div className="reset-password-modal-overlay">
+
         <div className="reset-password-modal">
 
           <button
@@ -156,6 +169,7 @@ function RestablecerPassword() {
           </div>
 
         </div>
+
       </div>
     )
   }
@@ -163,6 +177,7 @@ function RestablecerPassword() {
   if (success) {
     return (
       <div className="reset-password-modal-overlay">
+
         <div className="reset-password-modal">
 
           <button
@@ -201,6 +216,7 @@ function RestablecerPassword() {
           </button>
 
         </div>
+
       </div>
     )
   }
@@ -209,11 +225,16 @@ function RestablecerPassword() {
     <div
       className="reset-password-modal-overlay"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+
+        if (
+          event.target === event.currentTarget
+        ) {
           handleClose()
         }
+
       }}
     >
+
       <div className="reset-password-modal">
 
         <button
@@ -253,23 +274,82 @@ function RestablecerPassword() {
             </div>
           )}
 
+          {/* NUEVA CONTRASEÑA */}
+
           <div className="form-group">
 
             <label htmlFor="password">
               Nueva contraseña
             </label>
 
-            <input
-              id="password"
-              type="password"
-              placeholder="Mínimo 6 caracteres"
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
-            />
+            <div className="password-field">
+
+              <input
+                id="password"
+                type={
+                  mostrarPassword
+                    ? 'text'
+                    : 'password'
+                }
+                placeholder="Mínimo 6 caracteres"
+                value={password}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
+                autoComplete="new-password"
+              />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() =>
+                  setMostrarPassword(
+                    !mostrarPassword
+                  )
+                }
+                aria-label={
+                  mostrarPassword
+                    ? 'Ocultar contraseña'
+                    : 'Mostrar contraseña'
+                }
+                title={
+                  mostrarPassword
+                    ? 'Ocultar contraseña'
+                    : 'Mostrar contraseña'
+                }
+              >
+
+                {mostrarPassword ? (
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3.1 3.8" />
+                    <path d="M6.1 6.8C3.5 8.5 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
+                  </svg>
+                )}
+
+              </button>
+
+            </div>
 
           </div>
+
+
+          {/* CONFIRMAR CONTRASEÑA */}
 
           <div className="form-group">
 
@@ -277,19 +357,74 @@ function RestablecerPassword() {
               Confirmar contraseña
             </label>
 
-            <input
-              id="confirm-password"
-              type="password"
-              placeholder="Repite tu contraseña"
-              value={confirmPassword}
-              onChange={(event) =>
-                setConfirmPassword(
-                  event.target.value
-                )
-              }
-            />
+            <div className="password-field">
+
+              <input
+                id="confirm-password"
+                type={
+                  mostrarConfirmPassword
+                    ? 'text'
+                    : 'password'
+                }
+                placeholder="Repite tu contraseña"
+                value={confirmPassword}
+                onChange={(event) =>
+                  setConfirmPassword(
+                    event.target.value
+                  )
+                }
+                autoComplete="new-password"
+              />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() =>
+                  setMostrarConfirmPassword(
+                    !mostrarConfirmPassword
+                  )
+                }
+                aria-label={
+                  mostrarConfirmPassword
+                    ? 'Ocultar contraseña'
+                    : 'Mostrar contraseña'
+                }
+                title={
+                  mostrarConfirmPassword
+                    ? 'Ocultar contraseña'
+                    : 'Mostrar contraseña'
+                }
+              >
+
+                {mostrarConfirmPassword ? (
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3.1 3.8" />
+                    <path d="M6.1 6.8C3.5 8.5 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
+                  </svg>
+                )}
+
+              </button>
+
+            </div>
 
           </div>
+
 
           <button
             type="submit"
@@ -304,6 +439,7 @@ function RestablecerPassword() {
         </form>
 
       </div>
+
     </div>
   )
 }
