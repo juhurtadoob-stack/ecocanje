@@ -27240,3 +27240,352 @@ ol {
 .user-navbar-dropdown-trigger-active {
   font-weight: 400;
 }
+
+
+/* =========================================================
+   AJUSTES VISUALES ECOCANJE
+   Superficies y contraste usando la paleta existente.
+   ========================================================= */
+
+:root {
+  --border: #cbd5e1;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.10);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.10);
+}
+
+/* Secciones públicas: alternancia sutil entre blanco y slate claro. */
+.process-section,
+.how-steps,
+.collection-section,
+.store-section,
+.user-qr-section {
+  background: #f8fafc;
+}
+
+.benefits-section,
+.dashboard-section {
+  background: #f1f5f9;
+}
+
+.impact-section,
+.how-flow,
+.collection-info-section,
+.store-info,
+.benefits-info {
+  background: #f1f8f3;
+}
+
+/* Vistas de usuario: encabezados suaves y áreas de contenido neutrales. */
+.user-points-hero,
+.user-recycling-hero,
+.user-store-hero,
+.user-checkout-hero {
+  background: #f1f8f3;
+}
+
+.user-benefits-hero,
+.user-coupons-hero,
+.user-cart-hero,
+.user-orders-hero,
+.user-notifications-hero {
+  background: #f8fafc;
+}
+
+.user-points-section,
+.user-benefits-section,
+.user-store-section,
+.user-notifications-section {
+  background: #f8fafc;
+}
+
+.user-recycling-section,
+.user-coupons-section,
+.user-cart-section,
+.user-checkout-section,
+.user-orders-section,
+.user-collection-section {
+  background: #f1f8f3;
+}
+
+.attendant-dashboard-section,
+.attendant-actions-section,
+.attendant-scan-section,
+.attendant-recycling-section {
+  background: #f1f5f9;
+}
+
+.admin-dashboard-section,
+.admin-users-section,
+.admin-products-section,
+.admin-categories-section,
+.admin-benefits-section,
+.admin-materials-section,
+.admin-collection-points-section,
+.admin-orders-section,
+.admin-recyclings-section,
+.user-collection-tips-section {
+  background: #f1f8f3;
+}
+
+/* Las tarjetas conservan su superficie blanca y ganan separación suave. */
+.recycling-card,
+.process-card,
+.how-card,
+.collection-card,
+.product-card,
+.store-product-card,
+.benefit-card,
+.dashboard-card,
+.user-qr-card,
+.points-main-card,
+.points-info-card,
+.points-level-card,
+.points-rule-card,
+.recycling-summary-card,
+.recycling-history-card,
+.coupon-card,
+.checkout-card,
+.order-card,
+.profile-card,
+.user-collection-card,
+.user-notification-card,
+.attendant-card,
+.attendant-stat-card,
+.attendant-action-card,
+.attendant-scanner-card,
+.attendant-user-card,
+.attendant-recycling-form-card,
+.attendant-review-card,
+.admin-stat-card,
+.admin-order-detail-card,
+.admin-recycling-detail-card {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.10);
+}
+
+/* Las métricas destacan sobre las secciones claras sin teñir toda la tarjeta. */
+.dashboard-card,
+.attendant-stat-card,
+.points-info-card,
+.recycling-summary-card {
+  box-shadow: inset 0 3px 0 #22c55e, 0 5px 16px rgba(15, 23, 42, 0.10);
+}
+
+.dashboard-card:hover,
+.attendant-stat-card:hover,
+.points-info-card:hover,
+.recycling-summary-card:hover {
+  box-shadow: inset 0 3px 0 #22c55e, 0 8px 22px rgba(15, 23, 42, 0.12);
+}
+
+/* Tienda: contraste entre el área del producto, precio y controles de categoría. */
+.store-product-card {
+  border-color: #cbd5e1;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.10);
+}
+
+.store-product-card:hover {
+  border-color: #15803d;
+  box-shadow: 0 9px 22px rgba(15, 23, 42, 0.12);
+}
+
+.product-image {
+  background: #f1f8f3;
+  border-bottom-color: #cbd5e1;
+}
+
+.product-category {
+  color: #166534;
+}
+
+.product-footer {
+  border-top-color: #cbd5e1;
+}
+
+.product-footer strong {
+  color: #14532d;
+}
+
+.store-filter {
+  border-color: #cbd5e1;
+}
+
+.store-filter.active {
+  border-color: #166534;
+  background: #166534;
+}
+
+/* Beneficios: tarjetas más definidas y jerarquía para el descuento. */
+.user-benefits-section .benefit-card {
+  border-color: #cbd5e1;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.10);
+}
+
+.user-benefits-section .benefit-card:hover {
+  border-color: #15803d;
+  box-shadow: 0 9px 22px rgba(15, 23, 42, 0.12);
+}
+
+.user-benefits-section .benefit-discount {
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.user-benefits-section .benefit-status {
+  border: 1px solid #cbd5e1;
+}
+
+/* Datos de puntos de acopio conservan las tarjetas blancas y separan mejor sus campos. */
+.user-collection-card {
+  border-color: #cbd5e1;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.10);
+}
+
+.user-collection-card:hover {
+  border-color: #15803d;
+  box-shadow: 0 9px 22px rgba(15, 23, 42, 0.12);
+}
+
+.user-collection-info > div {
+  border-bottom-color: #cbd5e1;
+}
+
+.user-collection-button {
+  background: #15803d;
+}
+
+.user-collection-button:hover {
+  background: #14532d;
+}
+
+/* Tablas administrativas: cabecera y filas con separación más legible. */
+.admin-users-table-container,
+.admin-products-table-container,
+.admin-categories-table-container,
+.admin-benefits-table-container,
+.admin-materials-table-container,
+.admin-collection-points-table-container,
+.admin-orders-table-container,
+.admin-order-products-table-container,
+.admin-recyclings-table-container,
+.admin-recycling-materials-table-container {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-users-table thead th,
+.admin-products-table th,
+.admin-categories-table th,
+.admin-benefits-table th,
+.admin-materials-table th,
+.admin-collection-points-table th,
+.admin-orders-table th,
+.admin-order-products-table th,
+.admin-recyclings-table th,
+.admin-recycling-materials-table th {
+  background: #f1f8f3;
+  color: #14532d;
+  border-color: #cbd5e1;
+}
+
+.admin-users-table tbody tr:hover,
+.admin-products-table tbody tr:hover,
+.admin-categories-table tbody tr:hover,
+.admin-benefits-table tbody tr:hover,
+.admin-materials-table tbody tr:hover,
+.admin-collection-points-table tbody tr:hover,
+.admin-orders-table tbody tr:hover,
+.admin-order-products-table tbody tr:hover,
+.admin-recyclings-table tbody tr:hover,
+.admin-recycling-materials-table tbody tr:hover {
+  background: #f0fdf4;
+}
+
+.admin-users-table tbody td,
+.admin-products-table tbody td,
+.admin-categories-table tbody td,
+.admin-benefits-table tbody td,
+.admin-materials-table tbody td,
+.admin-collection-points-table tbody td,
+.admin-orders-table tbody td,
+.admin-order-products-table tbody td,
+.admin-recyclings-table tbody td,
+.admin-recycling-materials-table tbody td {
+  border-bottom-color: #cbd5e1;
+}
+
+/* Campos blancos con un borde más visible y foco verde coherente. */
+.form-group input,
+.profile-card input,
+.checkout-address-field textarea,
+.attendant-form-group select,
+.attendant-form-group input,
+.attendant-form-group textarea,
+.admin-form-field input,
+.admin-form-field select,
+.admin-form-field textarea {
+  border-color: #cbd5e1;
+  background-color: #ffffff;
+}
+
+.form-group input:focus,
+.profile-card input:focus,
+.checkout-address-field textarea:focus,
+.attendant-form-group select:focus,
+.attendant-form-group input:focus,
+.attendant-form-group textarea:focus,
+.admin-form-field input:focus,
+.admin-form-field select:focus,
+.admin-form-field textarea:focus {
+  border-color: #15803d;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.10);
+}
+
+.form-group input:disabled,
+.profile-card input:disabled,
+.checkout-address-field textarea:disabled,
+.attendant-form-group select:disabled,
+.attendant-form-group input:disabled,
+.attendant-form-group textarea:disabled,
+.admin-form-field input:disabled,
+.admin-form-field select:disabled,
+.admin-form-field textarea:disabled {
+  border-color: #e2e8f0;
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+/* Navegación: hover discreto; la opción activa conserva el verde de marca. */
+.navbar-links a:hover,
+.user-navbar-links a:hover,
+.attendant-navbar-links a:hover,
+.admin-navbar-links a:hover {
+  background-color: #f1f8f3;
+  color: #166534;
+}
+
+.navbar-links a.active,
+.user-navbar-links a.active,
+.attendant-navbar-links a.active,
+.admin-navbar-links a.active {
+  background-color: #bbf7d0;
+  color: #14532d;
+}
+
+/* Modales: borde y sombra suaves, preservando el overlay existente. */
+.login-modal,
+.register-modal,
+.redeem-modal,
+.attendant-modal,
+.admin-product-modal,
+.admin-category-modal,
+.admin-benefit-modal,
+.admin-material-modal,
+.admin-collection-point-modal,
+.admin-order-modal,
+.admin-role-modal {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-md);
+}
