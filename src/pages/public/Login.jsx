@@ -55,7 +55,7 @@ function Login() {
       const { data: profile, error: profileError } =
         await supabase
           .from('profiles')
-          .select('rol')
+          .select('rol, requiere_cambio_password')
           .eq('id', userId)
           .single()
 
@@ -80,6 +80,11 @@ function Login() {
       }
 
       if (profile.rol === 'encargado') {
+        if (profile.requiere_cambio_password) {
+          navigate('/restablecer-password?cambio=obligatorio')
+          return
+        }
+
         navigate('/encargado')
         return
       }
@@ -236,7 +241,7 @@ function Login() {
                   >
                     <path d="M3 3l18 18" />
                     <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3.1 3.8" />
-                    <path d="M6.1 6.8C3.5 8.5 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
+                    <path d="M6.1 6.8C3.5 6.8 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
                   </svg>
                 )}
               </button>

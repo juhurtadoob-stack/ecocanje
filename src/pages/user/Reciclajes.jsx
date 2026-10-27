@@ -799,7 +799,7 @@ function Reciclajes() {
               type="button"
               className="btn btn-primary"
               onClick={() =>
-                navigate('/puntos-acopio')
+                navigate('/usuario/puntos-acopio')
               }
             >
               Ver puntos de acopio

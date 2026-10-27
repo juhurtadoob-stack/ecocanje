@@ -513,21 +513,6 @@ function Tienda() {
                       </p>
 
 
-                      {/* PUNTOS REQUERIDOS */}
-
-                      <div className="product-points">
-
-                        <span>
-                          Puntos requeridos
-                        </span>
-
-                        <strong>
-                          {producto.puntos_requeridos ?? 0}
-                        </strong>
-
-                      </div>
-
-
                       {/* PRECIO + BOTÓN */}
 
                       <div className="product-footer">

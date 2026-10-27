@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 
 function RestablecerPassword() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  const cambioObligatorio =
+    searchParams.get('cambio') === 'obligatorio'
 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] =
@@ -26,45 +30,45 @@ function RestablecerPassword() {
   useEffect(() => {
     let mounted = true
 
-    const checkRecoverySession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
+    const verificarSesion = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
 
-      if (!mounted) return
+        if (!mounted) return
 
-      if (!session) {
-        setError(
-          'El enlace de recuperación no es válido o ha expirado.'
+        if (!session) {
+          setError(
+            cambioObligatorio
+              ? 'No se encontró una sesión activa para cambiar la contraseña.'
+              : 'El enlace de recuperación no es válido o ha expirado.'
+          )
+        }
+      } catch (err) {
+        console.error(
+          'Error al verificar la sesión:',
+          err
         )
-      }
 
-      setLoading(false)
-    }
-
-    checkRecoverySession()
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-
-        if (
-          event === 'PASSWORD_RECOVERY' &&
-          session
-        ) {
-          setError('')
+        if (mounted) {
+          setError(
+            'No se pudo verificar la sesión.'
+          )
+        }
+      } finally {
+        if (mounted) {
           setLoading(false)
         }
-
       }
-    )
+    }
+
+    verificarSesion()
 
     return () => {
       mounted = false
-      subscription.unsubscribe()
     }
-  }, [])
+  }, [cambioObligatorio])
 
   const handleClose = () => {
     navigate('/')
@@ -82,9 +86,9 @@ function RestablecerPassword() {
       return
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       setError(
-        'La contraseña debe tener al menos 6 caracteres.'
+        'La contraseña debe tener al menos 8 caracteres.'
       )
       return
     }
@@ -117,10 +121,29 @@ function RestablecerPassword() {
         return
       }
 
+      if (cambioObligatorio) {
+        const { error: completarCambioError } =
+          await supabase.rpc(
+            'marcar_cambio_password_completado'
+          )
+
+        if (completarCambioError) {
+          console.error(
+            'Error al completar el cambio obligatorio:',
+            completarCambioError
+          )
+
+          setError(
+            'La contraseña se actualizó, pero no se pudo completar el cambio obligatorio. Intenta nuevamente.'
+          )
+
+          return
+        }
+      }
+
       setSuccess(true)
 
       await supabase.auth.signOut()
-
     } catch (err) {
       console.error(
         'Error al restablecer contraseña:',
@@ -130,7 +153,6 @@ function RestablecerPassword() {
       setError(
         'Ocurrió un error al restablecer la contraseña.'
       )
-
     } finally {
       setSaving(false)
     }
@@ -158,12 +180,11 @@ function RestablecerPassword() {
             </span>
 
             <h1>
-              Verificando enlace
+              Verificando sesión
             </h1>
 
             <p>
-              Estamos verificando tu solicitud
-              de recuperación.
+              Estamos verificando tu sesión.
             </p>
 
           </div>
@@ -200,9 +221,9 @@ function RestablecerPassword() {
             </h1>
 
             <p>
-              Tu contraseña se actualizó correctamente.
-              Ahora puedes iniciar sesión con tu nueva
-              contraseña.
+              {cambioObligatorio
+                ? 'Tu contraseña temporal fue reemplazada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.'
+                : 'Tu contraseña se actualizó correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.'}
             </p>
 
           </div>
@@ -225,13 +246,9 @@ function RestablecerPassword() {
     <div
       className="reset-password-modal-overlay"
       onMouseDown={(event) => {
-
-        if (
-          event.target === event.currentTarget
-        ) {
+        if (event.target === event.currentTarget) {
           handleClose()
         }
-
       }}
     >
 
@@ -253,12 +270,15 @@ function RestablecerPassword() {
           </span>
 
           <h1>
-            Restablecer contraseña
+            {cambioObligatorio
+              ? 'Cambia tu contraseña'
+              : 'Restablecer contraseña'}
           </h1>
 
           <p>
-            Ingresa una nueva contraseña para
-            recuperar el acceso a tu cuenta.
+            {cambioObligatorio
+              ? 'Por seguridad, debes reemplazar la contraseña temporal antes de continuar.'
+              : 'Ingresa una nueva contraseña para recuperar el acceso a tu cuenta.'}
           </p>
 
         </div>
@@ -274,7 +294,12 @@ function RestablecerPassword() {
             </div>
           )}
 
-          {/* NUEVA CONTRASEÑA */}
+          {cambioObligatorio && (
+            <div className="form-message">
+              Tu contraseña temporal debe ser reemplazada
+              antes de acceder al panel de encargado.
+            </div>
+          )}
 
           <div className="form-group">
 
@@ -291,7 +316,7 @@ function RestablecerPassword() {
                     ? 'text'
                     : 'password'
                 }
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 value={password}
                 onChange={(event) =>
                   setPassword(event.target.value)
@@ -338,7 +363,7 @@ function RestablecerPassword() {
                   >
                     <path d="M3 3l18 18" />
                     <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3.1 3.8" />
-                    <path d="M6.1 6.8C3.5 8.5 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
+                    <path d="M6.1 6.8C3.5 6.8 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
                   </svg>
                 )}
 
@@ -347,9 +372,6 @@ function RestablecerPassword() {
             </div>
 
           </div>
-
-
-          {/* CONFIRMAR CONTRASEÑA */}
 
           <div className="form-group">
 
@@ -415,7 +437,7 @@ function RestablecerPassword() {
                   >
                     <path d="M3 3l18 18" />
                     <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3.1 3.8" />
-                    <path d="M6.1 6.8C3.5 8.5 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
+                    <path d="M6.1 6.8C3.5 6.8 2 12 2 12s3.5 6 10 6c1.3 0 2.5-.2 3.6-.7" />
                   </svg>
                 )}
 
@@ -425,7 +447,6 @@ function RestablecerPassword() {
 
           </div>
 
-
           <button
             type="submit"
             className="btn btn-primary reset-password-button"
@@ -433,7 +454,9 @@ function RestablecerPassword() {
           >
             {saving
               ? 'Actualizando...'
-              : 'Actualizar contraseña'}
+              : cambioObligatorio
+                ? 'Guardar nueva contraseña'
+                : 'Actualizar contraseña'}
           </button>
 
         </form>

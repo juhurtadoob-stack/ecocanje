@@ -230,10 +230,6 @@ function EcoTienda() {
                           {formatearPrecio(producto.precio)}
                         </strong>
 
-                        <span>
-                          {producto.puntos_requeridos ?? 0} puntos
-                        </span>
-
                       </div>
 
 

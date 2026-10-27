@@ -25,6 +25,9 @@ function RegistrarReciclaje() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const [currentUserRole, setCurrentUserRole] = useState('')
+  const [isAttendant, setIsAttendant] = useState(false)
+
   useEffect(() => {
     loadData()
   }, [])
@@ -38,6 +41,53 @@ function RegistrarReciclaje() {
         setError('No se recibió el código del usuario.')
         return
       }
+
+      /*
+       * ======================================================
+       * OBTENER USUARIO AUTENTICADO Y SU ROL
+       * ======================================================
+       */
+
+      const {
+        data: authData,
+        error: authError,
+      } = await supabase.auth.getUser()
+
+      if (authError) {
+        throw authError
+      }
+
+      const currentUser = authData?.user
+
+      if (!currentUser) {
+        throw new Error(
+          'No hay una sesión autenticada.'
+        )
+      }
+
+      const {
+        data: profile,
+        error: profileError,
+      } = await supabase
+        .from('profiles')
+        .select('rol')
+        .eq('id', currentUser.id)
+        .single()
+
+      if (profileError) {
+        throw profileError
+      }
+
+      const rolActual = profile?.rol || ''
+
+      setCurrentUserRole(rolActual)
+      setIsAttendant(rolActual === 'encargado')
+
+      /*
+       * ======================================================
+       * CARGAR DATOS BASE
+       * ======================================================
+       */
 
       const [
         userResult,
@@ -70,7 +120,10 @@ function RegistrarReciclaje() {
         throw userResult.error
       }
 
-      if (!userResult.data || userResult.data.length === 0) {
+      if (
+        !userResult.data ||
+        userResult.data.length === 0
+      ) {
         throw new Error(
           'No se encontró un usuario válido con ese código.'
         )
@@ -85,8 +138,111 @@ function RegistrarReciclaje() {
       }
 
       setUser(userResult.data[0])
-      setCollectionPoints(pointsResult.data || [])
       setMaterials(materialsResult.data || [])
+
+      /*
+       * ======================================================
+       * PUNTO DE ACOPIO DEL ENCARGADO
+       *
+       * El encargado solamente puede trabajar con el punto
+       * que tiene asignado en attendant_collection_points.
+       * ======================================================
+       */
+
+      if (rolActual === 'encargado') {
+        const {
+          data: asignacion,
+          error: asignacionError,
+        } = await supabase
+          .from('attendant_collection_points')
+          .select('punto_acopio_id')
+          .eq(
+            'encargado_id',
+            currentUser.id
+          )
+          .eq(
+            'estado',
+            'activo'
+          )
+          .maybeSingle()
+
+        if (asignacionError) {
+          console.error(
+            'Error al obtener la asignación del punto de acopio:',
+            asignacionError
+          )
+
+          throw new Error(
+            'No se pudo obtener el punto de acopio asignado a tu cuenta.'
+          )
+        }
+
+        if (
+          !asignacion ||
+          !asignacion.punto_acopio_id
+        ) {
+          throw new Error(
+            'Tu cuenta de encargado no tiene un punto de acopio activo asignado.'
+          )
+        }
+
+        const {
+          data: puntoAsignado,
+          error: puntoError,
+        } = await supabase
+          .from('collection_points')
+          .select('id, nombre, direccion')
+          .eq(
+            'id',
+            asignacion.punto_acopio_id
+          )
+          .eq(
+            'estado',
+            'activo'
+          )
+          .single()
+
+        if (puntoError) {
+          console.error(
+            'Error al obtener el punto de acopio asignado:',
+            puntoError
+          )
+
+          throw new Error(
+            'No se pudo obtener la información del punto de acopio asignado.'
+          )
+        }
+
+        if (!puntoAsignado) {
+          throw new Error(
+            'No se pudo obtener la información del punto de acopio asignado.'
+          )
+        }
+
+        setCollectionPoints([
+          puntoAsignado,
+        ])
+
+        setPointId(
+          String(puntoAsignado.id)
+        )
+
+      } else {
+        /*
+         * ====================================================
+         * ADMINISTRADOR
+         *
+         * Conserva el comportamiento anterior:
+         * puede seleccionar cualquier punto activo.
+         * ====================================================
+         */
+
+        setCollectionPoints(
+          pointsResult.data || []
+        )
+
+        setPointId('')
+      }
 
     } catch (err) {
       console.error(
@@ -309,8 +465,9 @@ function RegistrarReciclaje() {
           </h1>
 
           <p>
-            Selecciona el punto de acopio, registra el material
-            entregado y revisa los puntos que serán asignados.
+            {isAttendant
+              ? 'Registra el material entregado en tu punto de acopio y revisa los puntos que serán asignados.'
+              : 'Selecciona el punto de acopio, registra el material entregado y revisa los puntos que serán asignados.'}
           </p>
         </div>
       </section>
@@ -381,15 +538,18 @@ function RegistrarReciclaje() {
                 <select
                   id="collection-point"
                   value={pointId}
+                  disabled={isAttendant}
                   onChange={(event) => {
                     setPointId(event.target.value)
                     setShowReview(false)
                     setError('')
                   }}
                 >
-                  <option value="">
-                    Selecciona un punto de acopio
-                  </option>
+                  {!isAttendant && (
+                    <option value="">
+                      Selecciona un punto de acopio
+                    </option>
+                  )}
 
                   {collectionPoints.map((point) => (
                     <option
@@ -403,6 +563,19 @@ function RegistrarReciclaje() {
                     </option>
                   ))}
                 </select>
+
+                {isAttendant && selectedPoint && (
+                  <small
+                    style={{
+                      display: 'block',
+                      marginTop: '8px',
+                      color: '#64748b',
+                      fontSize: '13px',
+                    }}
+                  >
+                    Este punto está asignado a tu cuenta y no puede modificarse.
+                  </small>
+                )}
               </div>
 
               {/* ==================================================

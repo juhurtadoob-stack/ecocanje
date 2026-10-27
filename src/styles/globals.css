@@ -34,8 +34,6 @@
   --ecocanje-slate-50: #f8fafc;
   --ecocanje-surface-tint: #f8faf9;
 }
-
-
 /* ========================================
    RESET
 ======================================== */
@@ -87,8 +85,6 @@ ol {
 #root {
   min-height: 100vh;
 }
-
-
 /* ========================================
    CONTENEDOR GENERAL
 ======================================== */
@@ -97,8 +93,6 @@ ol {
   width: min(1200px, calc(100% - 40px));
   margin: 0 auto;
 }
-
-
 /* ========================================
    BOTONES
 ======================================== */
@@ -131,8 +125,6 @@ ol {
   border-color: var(--primary);
   color: var(--primary);
 }
-
-
 /* ========================================
    HOME - HERO
 ======================================== */
@@ -199,8 +191,6 @@ ol {
   flex-wrap: wrap;
   gap: 14px;
 }
-
-
 /* ========================================
    HOME - ELEMENTO VISUAL
 ======================================== */
@@ -27588,4 +27578,906 @@ ol {
 .admin-role-modal {
   border-color: #cbd5e1;
   box-shadow: var(--shadow-md);
+}
+/* =========================================================
+   ACCIONES DEL DIRECTORIO DE USUARIOS
+   ========================================================= */
+
+.admin-users-header-actions {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 30;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  transform: translateY(-50%);
+
+  pointer-events: auto;
+}
+
+.admin-users-header-actions .admin-users-count {
+  position: static;
+  transform: none;
+
+  width: 200px;
+  min-width: 200px;
+  height: 42px;
+  min-height: 42px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+
+  background: #f0fdf4;
+  color: #15803d;
+
+  box-shadow: none;
+}
+
+/* Texto "Total de cuentas" */
+.admin-users-header-actions .admin-users-count span {
+  margin: 0;
+
+  color: #166534;
+
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Número */
+.admin-users-header-actions .admin-users-count strong {
+  margin: 0;
+
+  color: #15803d;
+
+  font-size: 20px;
+  font-weight: 750;
+  line-height: 1;
+}
+
+/* Texto secundario que tenía la tarjeta */
+.admin-users-header-actions .admin-users-count small {
+  display: none;
+}
+
+/* BOTÓN CREAR ENCARGADO */
+
+.admin-create-attendant-button {
+  position: relative;
+  z-index: 31;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+  padding: 10px 16px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+
+  background: #f0fdf4;
+  color: #15803d;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+  pointer-events: auto;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-create-attendant-button:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+
+  box-shadow:
+    0 4px 12px rgba(22, 101, 52, 0.08);
+
+  transform: translateY(-1px);
+}
+
+.admin-create-attendant-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+
+  transform: none;
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   MODAL - CREAR ENCARGADO
+   ========================================================= */
+
+.admin-attendant-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  background: rgba(15, 23, 42, 0.48);
+
+  backdrop-filter: blur(3px);
+
+  overflow: hidden;
+
+  overscroll-behavior: contain;
+}
+
+/* MODAL */
+
+.admin-attendant-modal {
+  position: relative;
+
+  width: min(560px, 100%);
+  max-height: calc(100vh - 48px);
+
+  box-sizing: border-box;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+
+  border: 1px solid #dfe9e3;
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 24px 60px rgba(23, 62, 39, 0.18);
+
+  scrollbar-width: thin;
+  scrollbar-color: #b8c4bc transparent;
+}
+
+.admin-attendant-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-attendant-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-attendant-modal::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #b8c4bc;
+}
+
+.admin-attendant-modal::-webkit-scrollbar-thumb:hover {
+  background: #94a39a;
+}
+
+
+/* =========================================================
+   CABECERA DEL MODAL
+   ========================================================= */
+
+.admin-attendant-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 24px 26px;
+
+  border-bottom: 1px solid #e5eee8;
+
+  background: #ffffff;
+}
+
+.admin-attendant-modal-header > div {
+  min-width: 0;
+}
+
+/* Compatible con section-label y section-kicker */
+
+.admin-attendant-modal-header .section-label,
+.admin-attendant-modal-header .section-kicker {
+  display: block;
+
+  margin: 0 0 7px;
+
+  color: #168044;
+
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.8px;
+  line-height: 1.3;
+
+  text-transform: uppercase;
+}
+
+.admin-attendant-modal-header h2 {
+  margin: 0;
+
+  color: #17251d;
+
+  font-size: 24px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.admin-attendant-modal-header p {
+  margin: 8px 0 0;
+
+  color: #718078;
+
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+
+/* BOTÓN CERRAR */
+
+.admin-attendant-modal-close {
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  border: 1px solid #dfe9e3;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #647568;
+
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-attendant-modal-close:hover:not(:disabled) {
+  border-color: #c7e5cf;
+
+  background: #f1f8f3;
+  color: #168044;
+}
+
+.admin-attendant-modal-close:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   FORMULARIO
+   ========================================================= */
+
+.admin-attendant-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 20px;
+
+  padding: 24px 26px 26px;
+}
+
+.admin-attendant-form-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.admin-attendant-form-group label {
+  color: #26382d;
+
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+
+/* INPUTS Y SELECT */
+
+.admin-attendant-form-group input,
+.admin-attendant-form-group select {
+  width: 100%;
+  min-height: 44px;
+
+  box-sizing: border-box;
+
+  padding: 10px 13px;
+
+  border: 1px solid #cbd9d0;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #24352b;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.admin-attendant-form-group input::placeholder {
+  color: #9aa8a0;
+}
+
+.admin-attendant-form-group input:focus,
+.admin-attendant-form-group select:focus {
+  border-color: #22c55e;
+
+  box-shadow:
+    0 0 0 3px rgba(34, 197, 94, 0.10);
+}
+
+.admin-attendant-form-group input[readonly] {
+  background: #f8faf9;
+  color: #415148;
+}
+
+.admin-attendant-form-group input:disabled,
+.admin-attendant-form-group select:disabled {
+  background: #f5f8f6;
+  color: #66756c;
+  cursor: not-allowed;
+}
+
+
+/* TEXTO DE AYUDA */
+
+.admin-attendant-form-group small {
+  color: #7a887f;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   CONTRASEÑA TEMPORAL
+   ========================================================= */
+
+.admin-attendant-password-row {
+  display: flex;
+  align-items: stretch;
+
+  gap: 8px;
+}
+
+.admin-attendant-password-row .password-field {
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* BOTÓN GENERAR / REGENERAR */
+
+.admin-attendant-generate-button {
+  flex-shrink: 0;
+
+  min-width: 105px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 9px;
+
+  background: #f0fdf4;
+  color: #15803d;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-attendant-generate-button:hover:not(:disabled) {
+  border-color: #86efac;
+
+  background: #dcfce7;
+
+  box-shadow:
+    0 3px 8px rgba(22, 101, 52, 0.07);
+}
+
+.admin-attendant-generate-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   BLOQUE "CONTRASEÑA TEMPORAL GENERADA"
+   ========================================================= */
+
+.admin-attendant-copy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 15px 16px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 11px;
+
+  background: #f0fdf4;
+
+  box-sizing: border-box;
+}
+
+.admin-attendant-copy-row > div {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+
+/* TÍTULO */
+
+.admin-attendant-copy-row strong {
+  display: block;
+
+  color: #14532d;
+
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+
+/* TEXTO DE ADVERTENCIA */
+
+.admin-attendant-copy-row span {
+  display: block;
+
+  color: #4f6657;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* BOTÓN COPIAR */
+
+.admin-attendant-copy-button {
+  flex-shrink: 0;
+
+  min-height: 36px;
+
+  padding: 8px 14px;
+
+  border: 1px solid #a7e8bb;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #15803d;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-attendant-copy-button:hover:not(:disabled) {
+  border-color: #86efac;
+
+  background: #f1f8f3;
+  color: #166534;
+}
+
+.admin-attendant-copy-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   MENSAJES DE ERROR Y ÉXITO
+   ========================================================= */
+
+.admin-attendant-form .form-message {
+  box-sizing: border-box;
+
+  width: 100%;
+
+  padding: 11px 13px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.admin-attendant-form .form-message-error {
+  border: 1px solid #fecaca;
+
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.admin-attendant-form .form-message-success {
+  border: 1px solid #bbf7d0;
+
+  background: #f0fdf4;
+  color: #166534;
+}
+
+
+/* =========================================================
+   ACCIONES DEL FORMULARIO
+   ========================================================= */
+
+.admin-attendant-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding-top: 4px;
+}
+
+.admin-attendant-form .admin-secondary-button,
+.admin-attendant-form .btn {
+  min-height: 42px;
+}
+
+
+/* EL BOTÓN CREAR CUANDO ESTÁ DESHABILITADO */
+
+.admin-attendant-form .btn:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+
+/* =========================================================
+   RESULTADO: ENCARGADO CREADO
+   ========================================================= */
+
+.admin-attendant-success {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  padding: 26px;
+}
+
+.admin-attendant-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 50%;
+
+  background: #dcfce7;
+  color: #15803d;
+
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.admin-attendant-success h3 {
+  margin: 0;
+
+  color: #17251d;
+
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.admin-attendant-success > p {
+  margin: -5px 0 0;
+
+  color: #718078;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+/* DATOS DE LA CUENTA */
+
+.admin-attendant-success-data {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  padding: 15px;
+
+  border: 1px solid #e0ebe4;
+  border-radius: 11px;
+
+  background: #f8faf9;
+}
+
+.admin-attendant-success-data > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.admin-attendant-success-data span {
+  color: #7a887f;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.admin-attendant-success-data strong {
+  color: #26382d;
+
+  font-size: 13px;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* CONTRASEÑA EN RESULTADO */
+
+.admin-attendant-success-password {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 2px;
+  padding: 10px 12px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+.admin-attendant-success-password strong {
+  color: #14532d;
+
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 700;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   ADVERTENCIA FINAL
+   ========================================================= */
+
+.admin-attendant-warning {
+  padding: 13px 14px;
+
+  border: 1px solid #fde68a;
+  border-radius: 9px;
+
+  background: #fffbeb;
+  color: #92400e;
+
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.admin-attendant-warning strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #78350f;
+
+  font-size: 13px;
+}
+
+.admin-attendant-warning p {
+  margin: 0;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+  .admin-users-header-actions {
+    position: static;
+
+    width: 100%;
+
+    transform: none;
+
+    flex-wrap: wrap;
+
+    justify-content: flex-start;
+  }
+
+  .admin-users-header-actions .admin-users-count {
+    position: static;
+
+    transform: none;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  /* ACCIONES DEL DIRECTORIO */
+
+  .admin-users-header-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .admin-create-attendant-button {
+    width: 100%;
+  }
+
+  .admin-users-header-actions .admin-users-count {
+    width: 100%;
+
+    box-sizing: border-box;
+  }
+
+
+  /* MODAL */
+
+  .admin-attendant-modal-overlay {
+    align-items: flex-start;
+
+    padding: 14px;
+  }
+
+  .admin-attendant-modal {
+    max-height: calc(100vh - 28px);
+
+    border-radius: 14px;
+  }
+
+  .admin-attendant-modal-header {
+    padding: 20px;
+  }
+
+  .admin-attendant-modal-header h2 {
+    font-size: 21px;
+  }
+
+  .admin-attendant-form {
+    padding: 20px;
+  }
+
+
+  /* CONTRASEÑA */
+
+  .admin-attendant-password-row {
+    flex-direction: column;
+  }
+
+  .admin-attendant-generate-button {
+    width: 100%;
+  }
+
+
+  /* BLOQUE COPIAR */
+
+  .admin-attendant-copy-row {
+    align-items: stretch;
+
+    flex-direction: column;
+
+    gap: 12px;
+  }
+
+  .admin-attendant-copy-button {
+    width: 100%;
+  }
+
+
+  /* ACCIONES */
+
+  .admin-attendant-modal-actions {
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+  }
+
+  .admin-attendant-modal-actions button {
+    width: 100%;
+  }
+
+
+  /* RESULTADO */
+
+  .admin-attendant-success {
+    padding: 20px;
+  }
+
+  .admin-attendant-success-password {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .admin-attendant-success-password .admin-attendant-copy-button {
+    width: 100%;
+  }
 }

@@ -487,17 +487,6 @@ function Carrito() {
                         </div>
 
 
-                        <div className="cart-item-points">
-                          Puntos requeridos{' '}
-                          <strong>
-                            {Number(
-                              item.producto?.puntos_requeridos || 0
-                            ) * item.cantidad}{' '}
-                            puntos
-                          </strong>
-                        </div>
-
-
                       </div>
 
 
@@ -617,20 +606,6 @@ function Carrito() {
 
                     <strong>
                       {cantidadTotal}
-                    </strong>
-
-                  </div>
-
-
-                  <div className="cart-summary-row">
-
-                    <span>
-                      Puntos requeridos
-                    </span>
-
-                    <strong>
-                      {puntosRequeridos}{' '}
-                      puntos
                     </strong>
 
                   </div>

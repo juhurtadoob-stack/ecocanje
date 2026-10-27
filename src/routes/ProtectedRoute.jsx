@@ -5,13 +5,61 @@ import { supabase } from '../lib/supabase'
 function ProtectedRoute({ children, allowedRoles = [] }) {
   const [session, setSession] = useState(null)
   const [role, setRole] = useState(null)
+  const [requiereCambioPassword, setRequiereCambioPassword] =
+    useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let mounted = true
 
+    const cargarPerfil = async (currentSession) => {
+      if (!currentSession) {
+        if (mounted) {
+          setSession(null)
+          setRole(null)
+          setRequiereCambioPassword(false)
+          setLoading(false)
+        }
+
+        return
+      }
+
+      const { data: profile, error: profileError } =
+        await supabase
+          .from('profiles')
+          .select('rol, requiere_cambio_password')
+          .eq('id', currentSession.user.id)
+          .single()
+
+      if (profileError) {
+        console.error(
+          'Error al obtener el perfil:',
+          profileError
+        )
+
+        if (mounted) {
+          setSession(currentSession)
+          setRole(null)
+          setRequiereCambioPassword(false)
+          setLoading(false)
+        }
+
+        return
+      }
+
+      if (mounted) {
+        setSession(currentSession)
+        setRole(profile?.rol || null)
+        setRequiereCambioPassword(
+          profile?.requiere_cambio_password === true
+        )
+        setLoading(false)
+      }
+    }
+
     const verificarSesion = async () => {
-      const { data, error } = await supabase.auth.getSession()
+      const { data, error } =
+        await supabase.auth.getSession()
 
       if (error) {
         console.error(
@@ -22,51 +70,14 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
         if (mounted) {
           setSession(null)
           setRole(null)
+          setRequiereCambioPassword(false)
           setLoading(false)
         }
 
         return
       }
 
-      const currentSession = data.session
-
-      if (!currentSession) {
-        if (mounted) {
-          setSession(null)
-          setRole(null)
-          setLoading(false)
-        }
-
-        return
-      }
-
-      const { data: profile, error: profileError } =
-        await supabase
-          .from('profiles')
-          .select('rol')
-          .eq('id', currentSession.user.id)
-          .single()
-
-      if (profileError) {
-        console.error(
-          'Error al obtener el rol:',
-          profileError
-        )
-
-        if (mounted) {
-          setSession(currentSession)
-          setRole(null)
-          setLoading(false)
-        }
-
-        return
-      }
-
-      if (mounted) {
-        setSession(currentSession)
-        setRole(profile?.rol || null)
-        setLoading(false)
-      }
+      await cargarPerfil(data.session)
     }
 
     verificarSesion()
@@ -75,44 +86,7 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       async (_event, currentSession) => {
-
-        if (!currentSession) {
-          if (mounted) {
-            setSession(null)
-            setRole(null)
-            setLoading(false)
-          }
-
-          return
-        }
-
-        const { data: profile, error: profileError } =
-          await supabase
-            .from('profiles')
-            .select('rol')
-            .eq('id', currentSession.user.id)
-            .single()
-
-        if (profileError) {
-          console.error(
-            'Error al obtener el rol:',
-            profileError
-          )
-
-          if (mounted) {
-            setSession(currentSession)
-            setRole(null)
-            setLoading(false)
-          }
-
-          return
-        }
-
-        if (mounted) {
-          setSession(currentSession)
-          setRole(profile?.rol || null)
-          setLoading(false)
-        }
+        await cargarPerfil(currentSession)
       }
     )
 
@@ -132,6 +106,22 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
 
   if (!session) {
     return <Navigate to="/login" replace />
+  }
+
+  /*
+   * Un encargado con contraseña temporal pendiente
+   * no puede acceder al panel hasta cambiarla.
+   */
+  if (
+    role === 'encargado' &&
+    requiereCambioPassword
+  ) {
+    return (
+      <Navigate
+        to="/restablecer-password?cambio=obligatorio"
+        replace
+      />
+    )
   }
 
   if (
