@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { supabase } from '../../lib/supabase'
 
 const EMAIL_DOMAIN = '@ecocanje.pe'
@@ -64,6 +65,7 @@ function Usuarios() {
   const [error, setError] = useState('')
 
   const [busqueda, setBusqueda] = useState('')
+  const [menuAccionesAbierto, setMenuAccionesAbierto] = useState(null)
 
   const [adminActualId, setAdminActualId] = useState(null)
   const [esAdminPrincipal, setEsAdminPrincipal] =
@@ -186,6 +188,62 @@ function Usuarios() {
       document.body.style.overflow = overflowAnterior
     }
   }, [mostrarCrearEncargado])
+
+  useEffect(() => {
+    if (!menuAccionesAbierto) return
+
+    const cerrarAlHacerClickFuera = (event) => {
+      if (
+        !(event.target instanceof Element) ||
+        !event.target.closest('[data-user-actions-menu]')
+      ) {
+        setMenuAccionesAbierto(null)
+      }
+    }
+
+    const cerrarConEscape = (event) => {
+      if (event.key === 'Escape') setMenuAccionesAbierto(null)
+    }
+
+    const cerrarAlDesplazarse = () => setMenuAccionesAbierto(null)
+
+    document.addEventListener('pointerdown', cerrarAlHacerClickFuera)
+    document.addEventListener('keydown', cerrarConEscape)
+    window.addEventListener('scroll', cerrarAlDesplazarse, true)
+    window.addEventListener('resize', cerrarAlDesplazarse)
+
+    return () => {
+      document.removeEventListener('pointerdown', cerrarAlHacerClickFuera)
+      document.removeEventListener('keydown', cerrarConEscape)
+      window.removeEventListener('scroll', cerrarAlDesplazarse, true)
+      window.removeEventListener('resize', cerrarAlDesplazarse)
+    }
+  }, [menuAccionesAbierto])
+
+  const alternarMenuAcciones = (event, usuario) => {
+    if (menuAccionesAbierto?.usuarioId === usuario.id) {
+      setMenuAccionesAbierto(null)
+      return
+    }
+
+    const rect = event.currentTarget.getBoundingClientRect()
+    const anchoMenu = Math.min(228, window.innerWidth - 16)
+    const altoMenu = usuario.rol === 'encargado' ? 144 : 52
+    const abrirArriba = window.innerHeight - rect.bottom < altoMenu + 8 &&
+      rect.top > altoMenu + 8
+    const top = abrirArriba
+      ? Math.max(8, rect.top - altoMenu - 6)
+      : Math.max(
+        8,
+        Math.min(rect.bottom + 6, window.innerHeight - altoMenu - 8),
+      )
+    const left = Math.max(
+      8,
+      Math.min(rect.right - anchoMenu, window.innerWidth - anchoMenu - 8),
+    )
+
+    setMenuAccionesAbierto({ usuarioId: usuario.id, top, left })
+  }
 
   const cargarDatos = async () => {
     setLoading(true)
@@ -1320,43 +1378,81 @@ function Usuarios() {
                             </span>
 
                           ) : (
-
-                            <>
-                              {usuario.rol === 'encargado' && (
-                                <>
-                                  <button
-                                    type="button"
-                                    className="admin-user-action-button"
-                                    onClick={() => abrirEstadoEncargado(usuario)}
-                                  >
-                                    {usuario.estado_asignacion === 'activo'
-                                      ? 'Desactivar'
-                                      : 'Reactivar'}
-                                  </button>
-                                  <br />
-                                  <button
-                                    type="button"
-                                    className="admin-user-action-button"
-                                    onClick={() =>
-                                      abrirRestablecerPassword(usuario)
-                                    }
-                                  >
-                                    Restablecer contraseña
-                                  </button>
-                                  <br />
-                                </>
-                              )}
-
+                            <div
+                              className="admin-user-actions-menu-anchor"
+                              data-user-actions-menu
+                            >
                               <button
                                 type="button"
-                                className="admin-user-action-button"
-                                onClick={() =>
-                                  abrirCambiarRol(usuario)
+                                className="admin-user-actions-trigger"
+                                aria-haspopup="menu"
+                                aria-expanded={
+                                  menuAccionesAbierto?.usuarioId === usuario.id
+                                }
+                                aria-controls={`user-actions-menu-${usuario.id}`}
+                                onClick={(event) =>
+                                  alternarMenuAcciones(event, usuario)
                                 }
                               >
-                                Cambiar rol
+                                Más <span aria-hidden="true">⋮</span>
                               </button>
-                            </>
+
+                              {menuAccionesAbierto?.usuarioId === usuario.id &&
+                                createPortal(
+                                  <div
+                                    id={`user-actions-menu-${usuario.id}`}
+                                    className="admin-user-actions-menu"
+                                    role="menu"
+                                    aria-label={`Acciones para ${usuario.nombres || usuario.email}`}
+                                    data-user-actions-menu
+                                    style={{
+                                      top: menuAccionesAbierto.top,
+                                      left: menuAccionesAbierto.left,
+                                    }}
+                                  >
+                                    {usuario.rol === 'encargado' && (
+                                      <>
+                                        <button
+                                          type="button"
+                                          role="menuitem"
+                                          className="admin-user-actions-menu-item"
+                                          onClick={() => {
+                                            setMenuAccionesAbierto(null)
+                                            abrirEstadoEncargado(usuario)
+                                          }}
+                                        >
+                                          {usuario.estado_asignacion === 'activo'
+                                            ? 'Desactivar'
+                                            : 'Reactivar'}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          role="menuitem"
+                                          className="admin-user-actions-menu-item"
+                                          onClick={() => {
+                                            setMenuAccionesAbierto(null)
+                                            abrirRestablecerPassword(usuario)
+                                          }}
+                                        >
+                                          Restablecer contraseña
+                                        </button>
+                                      </>
+                                    )}
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="admin-user-actions-menu-item"
+                                      onClick={() => {
+                                        setMenuAccionesAbierto(null)
+                                        abrirCambiarRol(usuario)
+                                      }}
+                                    >
+                                      Cambiar rol
+                                    </button>
+                                  </div>,
+                                  document.body,
+                                )}
+                            </div>
 
                           )}
 

@@ -319,15 +319,6 @@ function Producto() {
 
 
               <div className="product-modal-info-row">
-                <span>Puntos requeridos</span>
-
-                <strong>
-                  {producto.puntos_requeridos ?? 0} puntos
-                </strong>
-              </div>
-
-
-              <div className="product-modal-info-row">
                 <span>Stock disponible</span>
 
                 <strong>
